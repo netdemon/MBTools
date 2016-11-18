@@ -54,3 +54,9 @@
 #endif
 
 
+
+// 全局变量  
+HANDLE h1 = NULL;                // 线程句柄  
+DWORD pid = 0;                   // 保存cmd窗口的PID  
+CString inputCmd, outputCmd;     // 保存cmd命令和返回的结果  
+CEdit * m_edit;                  // 输出框

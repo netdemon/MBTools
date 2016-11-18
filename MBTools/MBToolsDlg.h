@@ -3,12 +3,13 @@
 //
 
 #pragma once
+#include "afxwin.h"
 
 
 // CMBToolsDlg 对话框
 class CMBToolsDlg : public CDialog
 {
-// 构造
+	// 构造
 public:
 	CMBToolsDlg(CWnd* pParent = NULL);	// 标准构造函数
 
@@ -17,7 +18,7 @@ public:
 	enum { IDD = IDD_MBTOOLS_DIALOG };
 #endif
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
 
 
@@ -34,4 +35,19 @@ protected:
 public:
 	afx_msg void OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeEdit1();
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedOk();
+	afx_msg void OnBnClickedCancel();
+	CEdit msgbox;
+	CComboBox m_vmnum;
+	int vmnum;
+	//CString Data;
+	//CString Msg;
+	int row;
+	char sztempdirectory[MAX_PATH];
+	CStringArray data;
+	CStringArray vmlist;
+
+	afx_msg bool getVMlist();
 };
