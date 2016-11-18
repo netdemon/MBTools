@@ -77,6 +77,10 @@ BOOL CMBToolsApp::InitInstance()
 	{
 		// TODO: 在此放置处理何时用
 		//  “确定”来关闭对话框的代码
+		//theApp.GetMainWnd()->ShowWindow(SW_HIDE);//隐藏窗口
+		//theApp.GetMainWnd()->ShowWindow(SW_MINIMIZE);//最小化窗口
+		//theApp.GetMainWnd()->CloseWindow();//关闭窗口
+
 	}
 	else if (nResponse == IDCANCEL)
 	{

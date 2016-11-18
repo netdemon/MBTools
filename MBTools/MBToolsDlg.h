@@ -39,15 +39,22 @@ public:
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
+
+	afx_msg int getVMlist();
+
 	CEdit msgbox;
-	CComboBox m_vmnum;
+
 	int vmnum;
+	CStringArray vmlist;
+	CString vmNum;
+
 	//CString Data;
 	//CString Msg;
+
 	int row;
 	char sztempdirectory[MAX_PATH];
 	CStringArray data;
-	CStringArray vmlist;
 
-	afx_msg bool getVMlist();
+
+	afx_msg void OnBnClickedButton10();
 };
