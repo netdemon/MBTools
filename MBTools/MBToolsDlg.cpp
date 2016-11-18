@@ -118,7 +118,6 @@ BOOL CMBToolsDlg::OnInitDialog()
 		}
 		lstrcat(sztempdirectory, "dh\\");
 	*/
-	/*
 //#define EXECDOSCMD "dir /?" //可以换成你的命令  
 	SECURITY_ATTRIBUTES sa;
 	HANDLE hRead, hWrite;
@@ -129,9 +128,9 @@ BOOL CMBToolsDlg::OnInitDialog()
 	{
 		return FALSE;
 	}
-	char command[1024];    //长达1K的命令行，够用了吧  
-	//strcpy_s(command, "Cmd.exe /C ");
-	//strcat_s(command, EXECDOSCMD);
+	//char command[1024];    //长达1K的命令行，够用了吧  
+	//strcpy(command, "Cmd.exe /C ");
+	//strcat(command, EXECDOSCMD);
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 	si.cb = sizeof(STARTUPINFO);
@@ -141,14 +140,14 @@ BOOL CMBToolsDlg::OnInitDialog()
 	si.wShowWindow = SW_HIDE;
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 	//关键步骤，CreateProcess函数参数意义请查阅MSDN  
-	if (!CreateProcess(NULL, _T("D:\\Program Files\\Microvirt\\MEmu\\adb.exe devices"), NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi))
+	if (!CreateProcess(NULL, "D:\\Program Files\\Microvirt\\MEmu\\adb.exe devices", NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi))
 	{
 		CloseHandle(hWrite);
 		CloseHandle(hRead);
 		return FALSE;
 	}
 	CloseHandle(hWrite);
-	wchar_t buffer[4096] = { 0 };          //用4K的空间来存储输出的内容，只要不是显示文件内容，一般情况下是够用了。  
+	char buffer[4096] = { 0 };       //用4K的空间来存储输出的内容，只要不是显示文件内容，一般情况下是够用了。  
 	DWORD bytesRead;
 	CString bf;
 	CStringArray mv;
@@ -168,13 +167,13 @@ BOOL CMBToolsDlg::OnInitDialog()
 	//msgbox.ReplaceSel(bf);
 	//UpdateData(false);
 	//Sleep(200);
-	*/
+
 	/////////////////////////////////////////////////////////////////////////////////////
 
 	CStdioFile file_r, file_w;
-	//file_w.Open(_T("D:\\vmlist"), CFile::modeCreate | CFile::modeReadWrite);//如果文件事先不存在的话，就需要CFile::modeCreate，否则就不需要。
-	//file_w.WriteString(bf);
-	//file_w.Close();
+	file_w.Open(_T("D:\\vmlist"), CFile::modeCreate | CFile::modeReadWrite);//如果文件事先不存在的话，就需要CFile::modeCreate，否则就不需要。
+	file_w.WriteString(bf);
+	file_w.Close();
 	Sleep(200);
 	
 	file_r.Open(_T("D:\\1.txt"),CFile::modeRead);
@@ -201,9 +200,6 @@ BOOL CMBToolsDlg::OnInitDialog()
 	SetDlgItemText(IDC_COMBO1, vmNum);
 	
 /////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 
 	// END在此添加额外的初始化代码
@@ -286,10 +282,10 @@ void CMBToolsDlg::OnBnClickedButton1()
 	CString Msg;
 	CString m_path;
 	CString btText;
-	CString tmp_path = _T("C:\\tmp");
+	CString tmp_path = "C:\\tmp";
 
-	CString head = _T("BEGIN:VCARD\r\nVERSION:3.0\r\nTEL;TYPE=cell:");
-	CString food = _T("END:VCARD\r\n");
+	CString head = "BEGIN:VCARD\r\nVERSION:3.0\r\nTEL;TYPE=cell:";
+	CString food = "END:VCARD\r\n";
 
 	CStdioFile file_r;
 	CStdioFile file_w;
@@ -299,11 +295,11 @@ void CMBToolsDlg::OnBnClickedButton1()
 
 	if (btText == "打开导号文件") {
 
-		CFileDialog dlg(TRUE,		//TRUE是创建打开文件对话框，FALSE则创建的是保存文件对话框 
-			_T(".txt"),				//默认的打开文件的类型 
-			NULL,					//默认打开的文件名 
-			OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,	//打开只读文件 
-			_T("文本文件(*.txt)|*.txt|所有文件 (*.*)|*.*||"));	//所有可以打开的文件类型 
+		CFileDialog dlg(TRUE,//TRUE是创建打开文件对话框，FALSE则创建的是保存文件对话框 
+			".txt",//默认的打开文件的类型 
+			NULL,//默认打开的文件名 
+			OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,//打开只读文件 
+			"文本文件(*.txt)|*.txt|所有文件 (*.*)|*.*||");//所有可以打开的文件类型 
 
 		if (dlg.DoModal() == IDOK)
 		{
@@ -331,7 +327,7 @@ void CMBToolsDlg::OnBnClickedButton1()
 				if (strLine.GetLength() != 11) {
 					nogood = 1;
 					nogoodrow = row;
-					Msg.Format(_T("文件第 %d 行有错，请改正！"), row);
+					Msg.Format("文件第 %d 行有错，请改正！", row);
 					AfxMessageBox(Msg);
 					break;
 				}
@@ -350,8 +346,8 @@ void CMBToolsDlg::OnBnClickedButton1()
 			file_r.Close();
 			if (!nogood) {
 				//Msg.Format("%d",row);
-				msgbox.SetWindowText(_T(""));
-				SetDlgItemText(IDC_BUTTON1, _T("开始导号"));
+				msgbox.SetWindowText("");
+				SetDlgItemText(IDC_BUTTON1, "开始导号");
 			}
 		}
 
@@ -364,16 +360,16 @@ void CMBToolsDlg::OnBnClickedButton1()
 		// 导号操作
 		//AfxMessageBox("导号操作开始");
 		GetDlgItem(IDC_BUTTON1)->EnableWindow(FALSE);
-		SetDlgItemText(IDC_BUTTON1, _T("导号中..."));
+		SetDlgItemText(IDC_BUTTON1, "导号中...");
 
 		if (vmnum == 0) {
-			AfxMessageBox(_T("严重错误"));
+			AfxMessageBox("严重错误");
 			exit(1);
 		}
 
-		CString adb = _T("D:\\Program Files\\Microvirt\\MEmu\\adb.exe");
-		CString a = _T(" -s ");
-		CString acction = _T(" shell pm clear com.android.providers.contacts");
+		CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
+		CString a = " -s ";
+		CString acction = " shell pm clear com.android.providers.contacts";
 		CString cmd;
 
 
@@ -384,15 +380,15 @@ void CMBToolsDlg::OnBnClickedButton1()
 		CString str;
 		CString file;
 
-		msgbox.ReplaceSel(_T("生成文件:"));
+		msgbox.ReplaceSel("生成文件:");
 		for (int i = 0; i < vmnum; i++) {
-			str.Format(_T("%d"), i);
-			file = _T("D:\\dhfile") + str + _T(".vcf");
+			str.Format("%d", i);
+			file = "D:\\dhfile" + str + ".vcf";
 			file_w.Open(file, CFile::modeCreate | CFile::modeReadWrite);
 			while (z < a_num) {
 				CString out = head;
 				out = out + data[y];
-				out = out + _T("\r\n");
+				out = out + "\r\n";
 				out = out + food;
 				file_w.WriteString(out);
 				y++;
@@ -400,20 +396,20 @@ void CMBToolsDlg::OnBnClickedButton1()
 			}
 			z = 0;
 			file_w.Close();
-			Msg.Format(_T(" %d"), i + 1);
+			Msg.Format(" %d", i + 1);
 			msgbox.ReplaceSel(Msg);
 		}
 
 
 		//删除号码
-		msgbox.ReplaceSel(_T("\r\n删除号码:"));
+		msgbox.ReplaceSel("\r\n删除号码:");
 
 		for (int i = 0; i < vmnum; i++) {
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);  //DEL
-			ShellExecute(NULL, _T("open"), adb, cmd, _T(""), SW_HIDE);
+			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
 			Sleep(100);
-			Msg.Format(_T(" %d"), i + 1);
+			Msg.Format(" %d", i + 1);
 			msgbox.ReplaceSel(Msg);
 
 		}
@@ -421,42 +417,42 @@ void CMBToolsDlg::OnBnClickedButton1()
 
 
 		//复制号码
-		msgbox.ReplaceSel( _T("\r\n复制号码:"));
+		msgbox.ReplaceSel("\r\n复制号码:");
 		for (int i = 0; i < vmnum; i++) {
-			str.Format(_T("%d"), i);
-			file = _T("D:\\dhfile") + str + _T(".vcf");
+			str.Format("%d", i);
+			file = "D:\\dhfile" + str + ".vcf";
 			acction = " push ";
 			acction += file;
 			acction += " /sdcard/contacts.vcf";
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);  //COPY
-			ShellExecute(NULL, _T("open"), adb, cmd, _T(""), SW_HIDE);
+			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
 			Sleep(100);
-			Msg.Format(_T(" %d"), i + 1);
+			Msg.Format(" %d", i + 1);
 			msgbox.ReplaceSel(Msg);
 		}
 
 		//导入号码
 
-		msgbox.ReplaceSel(_T("\r\n导入号码:"));
+		msgbox.ReplaceSel("\r\n导入号码:");
 		for (int i = 0; i < vmnum; i++) {
 			acction = " shell am start -t \"text/x-vcard\" -d \"file:///sdcard/contacts.vcf\" -a android.intent.action.VIEW com.android.contacts";
 			cmd = a + vmlist[i] + acction;
-			AfxMessageBox(cmd);
-			ShellExecute(NULL, _T("open"), adb, cmd, _T(""), SW_SHOW);
+			//AfxMessageBox(cmd);
+			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
 			Sleep(100);
-			Msg.Format(_T(" %d"), i + 1);
+			Msg.Format(" %d", i + 1);
 			msgbox.ReplaceSel(Msg);
 		}
 
 
 		//导号结束
-		msgbox.ReplaceSel(_T("\r\n导号成功!"));
-		SetDlgItemText(IDC_BUTTON1, _T("打开导号文件"));
+		msgbox.ReplaceSel("\r\n导号成功!");
+		SetDlgItemText(IDC_BUTTON1, "打开导号文件");
 		GetDlgItem(IDC_BUTTON1)->EnableWindow(TRUE);
 
-
 	}
+
 
 }
 
@@ -466,7 +462,7 @@ void CMBToolsDlg::OnBnClickedButton2()
 	// TODO: 在此添加控件通知处理程序代码
 	GetDlgItem(IDC_BUTTON2)->EnableWindow(FALSE);
 
-	/*
+	
 	if (vmnum == 0) {
 		AfxMessageBox("严重错误");
 		exit(1);
@@ -490,7 +486,7 @@ void CMBToolsDlg::OnBnClickedButton2()
 	}
 	msgbox.ReplaceSel("\r\n清理成功!");
 	GetDlgItem(IDC_BUTTON2)->EnableWindow(TRUE);
-	*/
+
 }
 
 
