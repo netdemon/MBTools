@@ -71,6 +71,7 @@ BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
 	ON_BN_CLICKED(IDOK, &CMBToolsDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CMBToolsDlg::OnBnClickedCancel)
 	ON_BN_CLICKED(IDC_BUTTON10, &CMBToolsDlg::OnBnClickedButton10)
+	ON_BN_CLICKED(IDC_BUTTON8, &CMBToolsDlg::OnBnClickedButton8)
 END_MESSAGE_MAP()
 
 
@@ -108,7 +109,9 @@ BOOL CMBToolsDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 
 	SetDlgItemText(IDC_BUTTON1, _T("打开导号文件"));
-	SetDlgItemText(IDC_BUTTON2, _T("清除所有图片"));
+	SetDlgItemText(IDC_BUTTON2, _T("自动发朋友圈"));
+	SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
+	SetDlgItemText(IDC_BUTTON8, _T("清除所有图片"));
 
 	vmnum = getVMlist();
 	vmNum.Format(_T("%d"), vmnum);
@@ -190,6 +193,22 @@ void CMBToolsDlg::OnEnChangeEdit1()
 }
 
 
+
+void CMBToolsDlg::OnBnClickedOk()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	theApp.GetMainWnd()->ShowWindow(SW_MINIMIZE);//最小化窗口
+												 //CDialog::OnOK();
+}
+
+void CMBToolsDlg::OnBnClickedCancel()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CDialog::OnCancel();
+}
+
+
+
 void CMBToolsDlg::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -229,7 +248,6 @@ void CMBToolsDlg::OnBnClickedButton1()
 			int nogood = 0;
 			int nogoodrow = 1;
 
-
 			while (file_r.ReadString(strLine))   // //将每行都放进strLine字符串里
 			{
 				//分析文件是否正确
@@ -245,21 +263,11 @@ void CMBToolsDlg::OnBnClickedButton1()
 					AfxMessageBox(Msg);
 					break;
 				}
-				//Data = Data + head;
-				//Data = Data + strLine;
-				//Data = Data + "\r\n";
-				//Data = Data + food;
-
 				data.Add(strLine);
-
-				//CString out = data.GetAt(row-1);
-				//AfxMessageBox(out);
-
 				row++;
 			}
 			file_r.Close();
 			if (!nogood) {
-				//Msg.Format("%d",row);
 				msgbox.SetWindowText("");
 				SetDlgItemText(IDC_BUTTON1, "开始导号");
 			}
@@ -366,48 +374,15 @@ void CMBToolsDlg::OnBnClickedButton1()
 void CMBToolsDlg::OnBnClickedButton2()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	GetDlgItem(IDC_BUTTON2)->EnableWindow(FALSE);
-
-
-	if (vmnum == 0) {
-		AfxMessageBox("严重错误");
-		exit(1);
+	//AfxMessageBox("确保所有模拟器图库为空,使用任一模拟器手工保存最多9张图片并复制文字后按确定");
+	if (MessageBox("确保所有模拟器图库为空\r\n使用任一模拟器手工保存最多9张图片并复制文字后按确定\r\n不然出错,没准备好请按取消并重新准备好", "准备好了吗？", MB_OKCANCEL) == IDOK) {
+		AfxMessageBox("OK");
+	
+	
 	}
-
-	CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
-	CString a = " -s ";
-	CString acction = " shell pm clear com.android.providers.media";
-	CString cmd;
-	CString Msg;
-
-	msgbox.SetWindowText("");
-	msgbox.ReplaceSel("正在清理:");
-	for (int i = 0; i < vmnum; i++) {
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-		Sleep(100);
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
+	else {
+		AfxMessageBox("quxiao");
 	}
-	msgbox.ReplaceSel("\r\n清理成功!");
-	GetDlgItem(IDC_BUTTON2)->EnableWindow(TRUE);
-
-}
-
-
-void CMBToolsDlg::OnBnClickedOk()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	theApp.GetMainWnd()->ShowWindow(SW_MINIMIZE);//最小化窗口
-	//CDialog::OnOK();
-}
-
-
-void CMBToolsDlg::OnBnClickedCancel()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	CDialog::OnCancel();
 }
 
 
@@ -474,7 +449,7 @@ int CMBToolsDlg::getVMlist() {
 		{
 			vmlist.Add(bf);
 		}
-}
+	}
 	file_r.Close();
 	vmnum = vmlist.GetSize();
 	return vmnum;
@@ -489,3 +464,36 @@ void CMBToolsDlg::OnBnClickedButton10()
 	vmNum = "当前模拟器数量：" + vmNum;
 	SetDlgItemText(IDC_STATIC, vmNum);
 }
+
+
+void CMBToolsDlg::OnBnClickedButton8()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	GetDlgItem(IDC_BUTTON8)->EnableWindow(FALSE);
+
+
+	if (vmnum == 0) {
+		AfxMessageBox("严重错误");
+		exit(1);
+	}
+
+	CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
+	CString a = " -s ";
+	CString acction = " shell pm clear com.android.providers.media";
+	CString cmd;
+	CString Msg;
+
+	msgbox.SetWindowText("");
+	msgbox.ReplaceSel("正在清理:");
+	for (int i = 0; i < vmnum; i++) {
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		Sleep(100);
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
+	}
+	msgbox.ReplaceSel("\r\n清理成功!");
+	GetDlgItem(IDC_BUTTON8)->EnableWindow(TRUE);
+}
+

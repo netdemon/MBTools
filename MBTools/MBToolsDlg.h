@@ -35,10 +35,12 @@ protected:
 public:
 	afx_msg void OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeEdit1();
-	afx_msg void OnBnClickedButton1();
-	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedButton10();
+	afx_msg void OnBnClickedButton8();
 
 	afx_msg int getVMlist();
 
@@ -55,6 +57,4 @@ public:
 	char sztempdirectory[MAX_PATH];
 	CStringArray data;
 
-
-	afx_msg void OnBnClickedButton10();
 };
