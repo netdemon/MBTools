@@ -37,12 +37,6 @@
 
 #include <afxsock.h>            // MFC 套接字扩展
 
-
-
-
-
-
-
 #ifdef _UNICODE
 #if defined _M_IX86
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -52,13 +46,3 @@
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 #endif
-
-
-
-// 全局变量  
-HANDLE h1 = NULL;                // 线程句柄  
-DWORD pid = 0;                   // 保存cmd窗口的PID  
-CString inputCmd, outputCmd;     // 保存cmd命令和返回的结果  
-CEdit * m_edit;                  // 输出框
-
-#define ADB  "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";

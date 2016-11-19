@@ -377,11 +377,14 @@ void CMBToolsDlg::OnBnClickedButton2()
 	//AfxMessageBox("确保所有模拟器图库为空,使用任一模拟器手工保存最多9张图片并复制文字后按确定");
 	if (MessageBox("确保所有模拟器图库为空\r\n使用任一模拟器手工保存最多9张图片并复制文字后按确定\r\n不然出错,没准备好请按取消并重新准备好", "准备好了吗？", MB_OKCANCEL) == IDOK) {
 		AfxMessageBox("OK");
-	
-	
+		//保存已存微信图片到本地  adb pull /sdcard/tencent/MicroMsg/WeiXin D:\\pic
+		
+
+
+		//
 	}
 	else {
-		AfxMessageBox("quxiao");
+		AfxMessageBox("Cancel");
 	}
 }
 
@@ -487,7 +490,7 @@ void CMBToolsDlg::OnBnClickedButton8()
 	msgbox.ReplaceSel("正在清理:");
 	for (int i = 0; i < vmnum; i++) {
 		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
+		//AfxMessageBox(adb);
 		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
 		Sleep(100);
 		Msg.Format(" %d", i + 1);
