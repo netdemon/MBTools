@@ -54,7 +54,11 @@ public:
 	//CString Msg;
 
 	int row;
+	int edited;
 	char sztempdirectory[MAX_PATH];
 	CStringArray data;
 
+	afx_msg void OnBnClickedButton9();
 };
+
+CString GetClipBoardText(HWND hWnd);

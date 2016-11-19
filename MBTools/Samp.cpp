@@ -10,6 +10,44 @@ lstrcat(sztempdirectory, "dh\\");
 */
 
 /*
+//获取剪贴板文本内容
+std_string GetClipBoardText(HWND hWnd)
+{
+ASSERT(hWnd);
+std_string ClipBoardText;
+//判断剪贴板的数据格式是否可以处理。
+if (!IsClipboardFormatAvailable(CF_TEXT))
+return ClipBoardText;
+
+//打开剪贴板。
+if (!::OpenClipboard(hWnd))
+return ClipBoardText;
+
+//获取数据
+HANDLE hMem = GetClipboardData(CF_TEXT);
+if (hMem != NULL)
+{
+//获取字符串。
+LPSTR lpStr = (LPSTR)GlobalLock(hMem);
+if (lpStr != NULL)
+{
+ClipBoardText = lpStr;
+//释放锁内存
+GlobalUnlock(hMem);
+}
+}
+//关闭剪贴板
+CloseClipboard();
+return ClipBoardText;
+}
+*/
+
+
+
+
+
+
+/*
 //#define EXECDOSCMD "dir /?" //可以换成你的命令
 SECURITY_ATTRIBUTES sa;
 HANDLE hRead, hWrite;
