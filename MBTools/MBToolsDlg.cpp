@@ -73,6 +73,7 @@ BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON10, &CMBToolsDlg::OnBnClickedButton10)
 	ON_BN_CLICKED(IDC_BUTTON8, &CMBToolsDlg::OnBnClickedButton8)
 	ON_BN_CLICKED(IDC_BUTTON9, &CMBToolsDlg::OnBnClickedButton9)
+	ON_BN_CLICKED(IDC_BUTTON4, &CMBToolsDlg::OnBnClickedButton4)
 END_MESSAGE_MAP()
 
 
@@ -602,4 +603,79 @@ void CMBToolsDlg::OnBnClickedButton9()
 	ClipBoardText = GetClipBoardText(hWnd);
 	AfxMessageBox(ClipBoardText);
 
+	CString addfirfile = "#!/system/bin/sh\
+input keyevent 3\
+am start -n com.tencent.mm/com.tencent.mm.ui.LauncherUI\
+am display-size 320x480\n\
+am display-density 160\n\
+am display-size 360x480\n\
+input tap 133 406\n\
+sleep 1\n\
+input tap 170 100\n\
+sleep 1\n\
+int = 1\n\
+while (($int <= 20))\n\
+do\n\
+input swipe 200 400 200 0\n\
+let \"int++\"\n\
+done\n\
+sleep 1\n\
+add = 1\n\
+while (($add <= 10))\n\
+do\n\
+input tap 322 381\n\
+sleep 1\n\
+let \"add++\"\n\
+done\n\
+";
+	CStdioFile file_w;
+	file_w.Open(_T("D:\\test"), CFile::modeCreate | CFile::modeReadWrite);
+	file_w.WriteString(addfirfile);
+	file_w.Close();
+
+}
+
+
+void CMBToolsDlg::OnBnClickedButton4()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	SetDlgItemText(IDC_BUTTON4, "正在进行加人");
+	GetDlgItem(IDC_BUTTON4)->EnableWindow(FALSE);
+	//GetDlgItem(IDD_MBTOOLS_DIALOG)->EnableWindow(FALSE);
+
+	if (vmnum == 0) {
+		AfxMessageBox("严重错误");
+		exit(1);
+	}
+
+	CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
+	CString a = " -s ";
+	CString acction = " push D:\\AddFirSH /sdcard/MBTools/addfir";
+	CString cmd;
+	CString Msg;
+
+	msgbox.SetWindowText("");
+	msgbox.ReplaceSel("生成指令:");
+	for (int i = 0; i < vmnum; i++) {
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		Sleep(100);
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
+	}
+
+	msgbox.ReplaceSel("\r\n发送指令:");
+	acction = " shell /sdcard/MBTools/addfir";
+	for (int i = 0; i < vmnum; i++) {
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		Sleep(10000);
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
+	}
+	msgbox.ReplaceSel("\r\n操作成功!");
+	SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
+	GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
 }

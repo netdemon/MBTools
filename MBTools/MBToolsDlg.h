@@ -59,6 +59,7 @@ public:
 	CStringArray data;
 
 	afx_msg void OnBnClickedButton9();
+	afx_msg void OnBnClickedButton4();
 };
 
 CString GetClipBoardText(HWND hWnd);
