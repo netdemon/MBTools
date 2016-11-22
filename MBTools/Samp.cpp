@@ -1,6 +1,109 @@
 #include "stdafx.h"
 
 /*
+//ANSI转UTF8
+void ANSItoUTF8(CString &strAnsi)
+{
+//获取转换为宽字节后需要的缓冲区大小，创建宽字节缓冲区，936为简体中文GB2312代码页
+UINT nLen = MultiByteToWideChar(936,NULL,strAnsi,-1,NULL,NULL);
+WCHAR *wszBuffer = new WCHAR[nLen+1];
+nLen = MultiByteToWideChar(936,NULL,strAnsi,-1,wszBuffer,nLen);
+wszBuffer[nLen] = 0;
+//获取转为UTF8多字节后需要的缓冲区大小，创建多字节缓冲区
+nLen = WideCharToMultiByte(CP_UTF8,NULL,wszBuffer,-1,NULL,NULL,NULL,NULL);
+CHAR *szBuffer = new CHAR[nLen+1];
+nLen = WideCharToMultiByte(CP_UTF8,NULL,wszBuffer,-1,szBuffer,nLen,NULL,NULL);
+szBuffer[nLen] = 0;
+
+strAnsi = szBuffer;
+//内存清理
+delete []wszBuffer;
+delete []szBuffer;
+}
+
+
+//UTF8转ANSI
+void UTF8toANSI(CString &strUTF8)
+{
+//获取转换为多字节后需要的缓冲区大小，创建多字节缓冲区
+UINT nLen = MultiByteToWideChar(CP_UTF8,NULL,strUTF8,-1,NULL,NULL);
+WCHAR *wszBuffer = new WCHAR[nLen+1];
+nLen = MultiByteToWideChar(CP_UTF8,NULL,strUTF8,-1,wszBuffer,nLen);
+wszBuffer[nLen] = 0;
+
+nLen = WideCharToMultiByte(936,NULL,wszBuffer,-1,NULL,NULL,NULL,NULL);
+CHAR *szBuffer = new CHAR[nLen+1];
+nLen = WideCharToMultiByte(936,NULL,wszBuffer,-1,szBuffer,nLen,NULL,NULL);
+szBuffer[nLen] = 0;
+
+strUTF8 = szBuffer;
+//清理内存
+delete []szBuffer;
+delete []wszBuffer;
+}
+
+
+
+//
+unicode的环境下，写中文到文件，会出现乱码。
+
+解决方法下面两个函数。
+
+EncodeToUTF8  写入的时候调用
+
+UTF8ToEncode 读取的时候调用
+
+MultiByteToWideChar                           WideCharToMultiByte 实现原理就是这两个函数。 不知到哪位仁兄写的。
+
+
+
+char* EncodeToUTF8(const char* mbcsStr)
+{
+wchar_t*  wideStr;
+char*   utf8Str;
+int   charLen;
+
+charLen = MultiByteToWideChar(CP_UTF8, 0, mbcsStr, -1, NULL, 0);
+wideStr = (wchar_t*) malloc(sizeof(wchar_t)*charLen);
+MultiByteToWideChar(CP_ACP, 0, mbcsStr, -1, wideStr, charLen);
+
+charLen = WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, NULL, 0, NULL, NULL);
+
+utf8Str = (char*) malloc(charLen);
+
+WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, utf8Str, charLen, NULL, NULL);
+
+free(wideStr);
+return utf8Str;
+
+}
+char* UTF8ToEncode(const char* mbcsStr)
+{
+wchar_t*  wideStr;
+char*   unicodeStr;
+int   charLen;
+
+charLen = MultiByteToWideChar(CP_UTF8, 0, mbcsStr, -1, NULL, 0);
+wideStr = (wchar_t*) malloc(sizeof(wchar_t)*charLen);
+MultiByteToWideChar(CP_UTF8, 0, mbcsStr, -1, wideStr, charLen);
+
+charLen =WideCharToMultiByte(CP_ACP, 0, wideStr, -1, NULL, 0, NULL, NULL);
+unicodeStr = (char*)malloc(charLen);
+WideCharToMultiByte(CP_ACP, 0, wideStr, -1, unicodeStr, charLen, NULL, NULL);
+
+free(wideStr);
+return unicodeStr;
+}
+
+
+//
+
+*/
+
+
+
+
+/*
 int i = GetTempPath(MAX_PATH - 1, sztempdirectory);
 if (sztempdirectory[i - 1] != '\\')
 {

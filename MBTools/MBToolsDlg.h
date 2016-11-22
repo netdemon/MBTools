@@ -63,3 +63,4 @@ public:
 };
 
 CString GetClipBoardText(HWND hWnd);
+void ANSItoUTF8(CString &strAnsi);
