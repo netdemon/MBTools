@@ -6,6 +6,7 @@
 #include "MBTools.h"
 #include "MBToolsDlg.h"
 #include "afxdialogex.h"
+#include "xsleep.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -74,6 +75,7 @@ BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON8, &CMBToolsDlg::OnBnClickedButton8)
 	ON_BN_CLICKED(IDC_BUTTON9, &CMBToolsDlg::OnBnClickedButton9)
 	ON_BN_CLICKED(IDC_BUTTON4, &CMBToolsDlg::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_BUTTON5, &CMBToolsDlg::OnBnClickedButton5)
 END_MESSAGE_MAP()
 
 
@@ -113,6 +115,7 @@ BOOL CMBToolsDlg::OnInitDialog()
 	SetDlgItemText(IDC_BUTTON1, _T("打开导号文件"));
 	SetDlgItemText(IDC_BUTTON2, _T("自动发朋友圈"));
 	SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
+	SetDlgItemText(IDC_BUTTON5, _T("删除朋友圈一"));
 	SetDlgItemText(IDC_BUTTON8, _T("清除所有图片"));
 	SetDlgItemText(IDC_BUTTON9, _T("TEST"));
 
@@ -248,72 +251,81 @@ void CMBToolsDlg::OnBnClickedOk()
 
 	msgbox.ReplaceSel("生成指令:");
 	for (int i = 0; i < vmnum; i++) {
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
 		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-		Sleep(100);
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
+		XSleep(500);
 	}
 
 	/*
 	acction = " shell am force-stop com.tencent.mm";
 	msgbox.ReplaceSel("\r\n关闭微信:");
 	for (int i = 0; i < vmnum; i++) {
+	Msg.Format(" %d", i + 1);
+	msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
 		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-		Sleep(200);
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
+		XSleep(200);
 	}
 	acction = " shell am start -n com.tencent.mm/com.tencent.mm.ui.LauncherUI";
 	msgbox.ReplaceSel("\r\n开启微信:");
 	for (int i = 0; i < vmnum; i++) {
+	Msg.Format(" %d", i + 1);
+	msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
 		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-		Sleep(1000);
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
+		XSleep(1000);
 	}
 	*/
+
+
 	msgbox.ReplaceSel("\r\n发送指令:");
 	acction = " shell /sdcard/MBTools/putpic";
 	for (int i = 0; i < vmnum; i++) {
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
 		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-		Sleep(1000);
+		XSleep(1000);
+	}
+
+	
+	msgbox.ReplaceSel("\r\n等待点击:");
+	for (int i = 0; i < vmnum*2; i++) {
 		Msg.Format(" %d", i + 1);
 		msgbox.ReplaceSel(Msg);
+		XSleep(1000);
 	}
+	
 
 	msgbox.ReplaceSel("\r\n发送文本!");
-	acction = " shell am broadcast -a ADB_INPUT_TEXT --es msg \'";
+	acction = " shell am broadcast -a ADB_INPUT_TEXT --es msg ";
 	acction += Text;
-	acction += "\'";
-
+	//acction += "'";
 	for (int i = 0; i < vmnum; i++) {
-		cmd = a + vmlist[i] + acction;
-		AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-		Sleep(500);
 		Msg.Format(" %d", i + 1);
 		msgbox.ReplaceSel(Msg);
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		XSleep(1000);
 	}
-	/*
 	msgbox.ReplaceSel("\r\n点击发送!");
 	acction = " shell input tap 321 50";
 	for (int i = 0; i < vmnum; i++) {
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
 		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-		Sleep(2000);
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
+		XSleep(2000);
 	}
-	*/
+	
 	msgbox.ReplaceSel("\r\n操作完成!");
 	SetDlgItemText(IDOK, "确定");
 	SetDlgItemText(IDC_BUTTON2, _T("自动发朋友圈"));
@@ -459,18 +471,19 @@ void CMBToolsDlg::OnBnClickedButton1()
 		//删除号码
 		msgbox.ReplaceSel("\r\n删除号码:");
 		for (int i = 0; i < vmnum; i++) {
+			Msg.Format(" %d", i + 1);
+			msgbox.ReplaceSel(Msg);
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);  //DEL
 			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-			Sleep(100);
-			Msg.Format(" %d", i + 1);
-			msgbox.ReplaceSel(Msg);
-
+			XSleep(500);
 		}
 
 		//复制号码
 		msgbox.ReplaceSel("\r\n复制号码:");
 		for (int i = 0; i < vmnum; i++) {
+			Msg.Format(" %d", i + 1);
+			msgbox.ReplaceSel(Msg);
 			str.Format("%d", i);
 			file = "D:\\dhfile" + str + ".vcf";
 			acction = " push ";
@@ -479,21 +492,19 @@ void CMBToolsDlg::OnBnClickedButton1()
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);  //COPY
 			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-			Sleep(100);
-			Msg.Format(" %d", i + 1);
-			msgbox.ReplaceSel(Msg);
+			XSleep(500);
 		}
 
 		//导入号码
 		msgbox.ReplaceSel("\r\n导入号码:");
 		for (int i = 0; i < vmnum; i++) {
+			Msg.Format(" %d", i + 1);
+			msgbox.ReplaceSel(Msg);
 			acction = " shell am start -t \"text/x-vcard\" -d \"file:///sdcard/contacts.vcf\" -a android.intent.action.VIEW com.android.contacts";
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);
 			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-			Sleep(100);
-			Msg.Format(" %d", i + 1);
-			msgbox.ReplaceSel(Msg);
+			XSleep(500);
 		}
 
 		//导号结束
@@ -534,24 +545,24 @@ void CMBToolsDlg::OnBnClickedButton2()
 		msgbox.SetWindowText("");
 		msgbox.ReplaceSel("正在下图:");
 		for (int i = 0; i < vmnum; i++) {
+			Msg.Format(" %d", i + 1);
+			msgbox.ReplaceSel(Msg);
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);
 			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-			Sleep(200);
-			Msg.Format(" %d", i + 1);
-			msgbox.ReplaceSel(Msg);
+			XSleep(500);
 		}
 		//msgbox.ReplaceSel("\r\n保存完成!");
 
 		acction = " push D:\\pic /sdcard/tencent/MicroMsg/WeiXin";
 		msgbox.ReplaceSel("\r\n正在上图:");
 		for (int i = 0; i < vmnum; i++) {
+			Msg.Format(" %d", i + 1);
+			msgbox.ReplaceSel(Msg);
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);
 			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-			Sleep(200);
-			Msg.Format(" %d", i + 1);
-			msgbox.ReplaceSel(Msg);
+			XSleep(500);
 		}
 
 		acction = " shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/";
@@ -559,12 +570,11 @@ void CMBToolsDlg::OnBnClickedButton2()
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);
 			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-			Sleep(100);
+			XSleep(500);
 		}
 		msgbox.SetWindowText(ClipBoardText);
 		edited = 1;
 
-		//
 	}
 	else {
 		//AfxMessageBox("Cancel");
@@ -597,31 +607,26 @@ void CMBToolsDlg::OnBnClickedButton8()
 	CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
 	CString a = " -s ";
 	CString acction = " shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\"";
-
 	CString cmd;
-	CString cmd1;
 	CString Msg;
 
 	msgbox.SetWindowText("");
 	msgbox.ReplaceSel("正在清理:");
 	for (int i = 0; i < vmnum; i++) {
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd1);
-		Sleep(100);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
 		Msg.Format(" %d", i + 1);
 		msgbox.ReplaceSel(Msg);
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		XSleep(500);
+		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
 	}
 	acction = " shell pm clear com.android.providers.media";
 	for (int i = 0; i < vmnum; i++) {
 		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd1);
-		Sleep(50);
+		//AfxMessageBox(cmd);
+		XSleep(100);
 		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-		//Msg.Format(" %d", i + 1);
-		//msgbox.ReplaceSel(Msg);
 	}
-
 	msgbox.ReplaceSel("\r\n清理成功!");
 	GetDlgItem(IDC_BUTTON8)->EnableWindow(TRUE);
 }
@@ -672,7 +677,7 @@ int CMBToolsDlg::getVMlist() {
 	file_w.Open(_T("D:\\vmlist"), CFile::modeCreate | CFile::modeReadWrite);//如果文件事先不存在的话，就需要CFile::modeCreate，否则就不需要。
 	file_w.WriteString(bf);
 	file_w.Close();
-	Sleep(200);
+	XSleep(200);
 
 #ifdef DEBUG
 	file_r.Open(_T("D:\\1.txt"), CFile::modeRead);
@@ -792,23 +797,23 @@ void CMBToolsDlg::OnBnClickedButton4()
 	msgbox.SetWindowText("");
 	msgbox.ReplaceSel("生成指令:");
 	for (int i = 0; i < vmnum; i++) {
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
 		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-		Sleep(100);
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
+		XSleep(500);
 	}
 
 	msgbox.ReplaceSel("\r\n发送指令:");
 	acction = " shell /sdcard/MBTools/addfir";
 	for (int i = 0; i < vmnum; i++) {
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
 		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-		Sleep(1000);
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
+		XSleep(1000);
 	}
 	msgbox.ReplaceSel("\r\n操作成功!");
 	SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
@@ -834,4 +839,42 @@ void ANSItoUTF8(CString &strAnsi)
 	//内存清理
 	delete[]wszBuffer;
 	delete[]szBuffer;
+}
+
+void CMBToolsDlg::OnBnClickedButton5()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	GetDlgItem(IDC_BUTTON5)->EnableWindow(FALSE);
+
+	if (vmnum == 0) {
+		AfxMessageBox("严重错误");
+		exit(1);
+	}
+
+	CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
+	CString a = " -s ";
+	CString acction = " push D:\\DelPicSH /sdcard/MBTools/delpic";
+
+	CString cmd;
+	CString Msg;
+
+	msgbox.SetWindowText("");
+	msgbox.ReplaceSel("正在删除:");
+	for (int i = 0; i < vmnum; i++) {
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		XSleep(500);
+		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+	}
+	acction = " shell /sdcard/MBTools/delpic";
+	for (int i = 0; i < vmnum; i++) {
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		XSleep(100);
+		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+	}
+	msgbox.ReplaceSel("\r\n删除成功!");
+	GetDlgItem(IDC_BUTTON5)->EnableWindow(TRUE);
 }
