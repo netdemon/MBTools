@@ -185,6 +185,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="http.h" />
     <ClInclude Include="MBTools.h" />
     <ClInclude Include="MBToolsDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -193,6 +194,7 @@
     <ClInclude Include="xsleep.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="http.cpp" />
     <ClCompile Include="MBTools.cpp" />
     <ClCompile Include="MBToolsDlg.cpp" />
     <ClCompile Include="Samp.cpp" />

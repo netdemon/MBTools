@@ -7,6 +7,7 @@
 #include "MBToolsDlg.h"
 #include "afxdialogex.h"
 #include "xsleep.h"
+#include "http.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -76,6 +77,9 @@ BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON9, &CMBToolsDlg::OnBnClickedButton9)
 	ON_BN_CLICKED(IDC_BUTTON4, &CMBToolsDlg::OnBnClickedButton4)
 	ON_BN_CLICKED(IDC_BUTTON5, &CMBToolsDlg::OnBnClickedButton5)
+	ON_BN_CLICKED(IDC_BUTTON6, &CMBToolsDlg::OnBnClickedButton6)
+	ON_BN_CLICKED(IDC_BUTTON3, &CMBToolsDlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_BUTTON7, &CMBToolsDlg::OnBnClickedButton7)
 END_MESSAGE_MAP()
 
 
@@ -114,8 +118,11 @@ BOOL CMBToolsDlg::OnInitDialog()
 
 	SetDlgItemText(IDC_BUTTON1, _T("打开导号文件"));
 	SetDlgItemText(IDC_BUTTON2, _T("自动发朋友圈"));
+	SetDlgItemText(IDC_BUTTON3, _T("副机发朋友圈"));
 	SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
 	SetDlgItemText(IDC_BUTTON5, _T("删除朋友圈一"));
+	SetDlgItemText(IDC_BUTTON6, _T("TESTPOST"));
+	SetDlgItemText(IDC_BUTTON7, _T("初始化模拟器"));
 	SetDlgItemText(IDC_BUTTON8, _T("清除所有图片"));
 	SetDlgItemText(IDC_BUTTON9, _T("TEST"));
 
@@ -236,14 +243,16 @@ void CMBToolsDlg::OnBnClickedOk()
 	CString Text;
 
 	GetDlgItemText(IDC_EDIT1, Text);
+	CString GBText = Text;
 	Text.Trim();
 	Text.TrimRight("\r\n");
 	Text.TrimRight('\r');
 	Text.TrimRight('\n');
-	Text.Replace('\'',' ');
+	Text.Replace('\'', ' ');
 	Text.Replace("\r\n", "");
-	Text.Replace('\r',' ');
-	Text.Replace('\n',' ');
+	Text.Replace('\r', ' ');
+	Text.Replace('\n', ' ');
+	Text.Replace(" ", "");
 	ANSItoUTF8(Text);
 
 	msgbox.SetWindowText("");
@@ -294,15 +303,58 @@ void CMBToolsDlg::OnBnClickedOk()
 		XSleep(1000);
 	}
 
-	
+	/*//替换为发图到服务器
 	msgbox.ReplaceSel("\r\n等待点击:");
 	for (int i = 0; i < vmnum*2; i++) {
 		Msg.Format(" %d", i + 1);
 		msgbox.ReplaceSel(Msg);
 		XSleep(1000);
 	}
-	
+	//*/
+	msgbox.ReplaceSel("\r\n服务同步:");
 
+	//删除文件
+	CString post = "-d d=Yes";
+	post += " ";
+	post = post + HOST + POST;
+	cmd = post;
+	//AfxMessageBox(cmd);
+	ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
+	XSleep(2000);
+	//post = "--data-urlencode t=";
+	post = "-d t=";
+	post += Text;
+	cmd = post + " " + HOST + POST;
+	//AfxMessageBox(cmd);
+	ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
+	XSleep(2000);
+	//列出D:\pic，一个一个POST
+	CFileFind file;
+	BOOL res = file.FindFile("D:\\pic\\*.jpg");//指定找mp3格式的文件
+											   //BOOL res = file.FindFile(指定的文夹路径+"*.mp3")||file.FindFile(指定的文夹路径+"*.m4a");
+											   //表示同时找mp3和m4a格式的文件
+	while (res)
+	{
+		res = file.FindNextFile();
+		//不遍历子目录
+		if (!file.IsDirectory() && !file.IsDots())
+		{
+			CString m_file = file.GetFilePath();
+			//upload file
+			CString acction = "-F \"fileToUpload=@"; // d:\\tmp\\";
+			CString cmd;
+			CString Msg;
+			cmd = acction + m_file + "\" " + HOST + POST;
+			//AfxMessageBox(cmd);
+			XSleep(500);
+			ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
+		}
+	}
+	file.Close();
+	//
+
+
+	//
 	msgbox.ReplaceSel("\r\n发送文本!");
 	acction = " shell am broadcast -a ADB_INPUT_TEXT --es msg ";
 	acction += Text;
@@ -325,7 +377,7 @@ void CMBToolsDlg::OnBnClickedOk()
 		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
 		XSleep(2000);
 	}
-	
+
 	msgbox.ReplaceSel("\r\n操作完成!");
 	SetDlgItemText(IDOK, "确定");
 	SetDlgItemText(IDC_BUTTON2, _T("自动发朋友圈"));
@@ -691,6 +743,7 @@ int CMBToolsDlg::getVMlist() {
 	while (file_r.ReadString(strLine))
 	{
 		CString bf = strLine.Left(15);
+		//AfxMessageBox(bf);
 		if (bf.Find(_T("127.0.0.1")) != -1)
 		{
 			vmlist.Add(bf);
@@ -877,4 +930,79 @@ void CMBToolsDlg::OnBnClickedButton5()
 	}
 	msgbox.ReplaceSel("\r\n删除成功!");
 	GetDlgItem(IDC_BUTTON5)->EnableWindow(TRUE);
+}
+
+
+void CMBToolsDlg::OnBnClickedButton6()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	/*
+	CFile file_r;
+	CFileDialog dlg(TRUE,//TRUE是创建打开文件对话框，FALSE则创建的是保存文件对话框
+		".txt",//默认的打开文件的类型
+		NULL,//默认打开的文件名
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,//打开只读文件
+		"图片文件(*.JPG)|*.jpg|所有文件 (*.*)|*.*||");//所有可以打开的文件类型
+
+
+	if (dlg.DoModal() == IDOK)
+	{
+
+		CString m_path = dlg.GetPathName(); //取出文件路径
+		UpdateData(FALSE);
+
+		CString acction = "-F fileToUpload=@"; // d:\\tmp\\";
+		CString cmd;
+		CString Msg;
+		cmd = acction + m_path + " " + HOST + POST;
+		AfxMessageBox(cmd);
+		XSleep(100);
+		ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
+
+	}
+	*/
+
+	//列出D:\pic，一个一个POST
+	CFileFind file;
+	BOOL res = file.FindFile("D:\\pic\\*.jpg");//指定找mp3格式的文件
+											 //BOOL res = file.FindFile(指定的文夹路径+"*.mp3")||file.FindFile(指定的文夹路径+"*.m4a");
+											 //表示同时找mp3和m4a格式的文件
+	while (res)
+	{
+		res = file.FindNextFile();
+		//不遍历子目录
+		if (!file.IsDirectory() && !file.IsDots())
+		{
+			CString m_file = file.GetFilePath();
+			//upload file
+			CString acction = "-F \"fileToUpload=@"; // d:\\tmp\\";
+			CString cmd;
+			CString Msg;
+			cmd = acction + m_file + "\" " + HOST + POST;
+			AfxMessageBox(cmd);
+			XSleep(100);
+			ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
+
+		}
+	}
+	file.Close();
+
+}
+
+
+void CMBToolsDlg::OnBnClickedButton3()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	//副机发朋友圈
+	//RemoveDirectory(%%1);
+	//CreateDirectory(%%1, NULL);
+
+
+}
+
+
+void CMBToolsDlg::OnBnClickedButton7()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	//初始化模拟器
 }

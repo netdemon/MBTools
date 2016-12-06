@@ -36,6 +36,9 @@
     <ClInclude Include="xsleep.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="http.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MBTools.cpp">
@@ -51,6 +54,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="xsleep.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="http.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
