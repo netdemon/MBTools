@@ -80,6 +80,8 @@ BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON6, &CMBToolsDlg::OnBnClickedButton6)
 	ON_BN_CLICKED(IDC_BUTTON3, &CMBToolsDlg::OnBnClickedButton3)
 	ON_BN_CLICKED(IDC_BUTTON7, &CMBToolsDlg::OnBnClickedButton7)
+	ON_BN_CLICKED(IDC_BUTTON11, &CMBToolsDlg::OnBnClickedButton11)
+	ON_CBN_SELCHANGE(IDC_COMBO1, &CMBToolsDlg::OnCbnSelchangeCombo1)
 END_MESSAGE_MAP()
 
 
@@ -243,7 +245,6 @@ void CMBToolsDlg::OnBnClickedOk()
 	CString Text;
 
 	GetDlgItemText(IDC_EDIT1, Text);
-	CString GBText = Text;
 	Text.Trim();
 	Text.TrimRight("\r\n");
 	Text.TrimRight('\r');
@@ -253,6 +254,7 @@ void CMBToolsDlg::OnBnClickedOk()
 	Text.Replace('\r', ' ');
 	Text.Replace('\n', ' ');
 	Text.Replace(" ", "");
+	CString GBText = Text;
 	ANSItoUTF8(Text);
 
 	msgbox.SetWindowText("");
@@ -303,14 +305,13 @@ void CMBToolsDlg::OnBnClickedOk()
 		XSleep(1000);
 	}
 
-	/*//替换为发图到服务器
 	msgbox.ReplaceSel("\r\n等待点击:");
-	for (int i = 0; i < vmnum*2; i++) {
+	int stime = 60000 / vmnum;
+	for (int i = 0; i < vmnum; i++) {
 		Msg.Format(" %d", i + 1);
 		msgbox.ReplaceSel(Msg);
-		XSleep(1000);
+		XSleep(stime);
 	}
-	//*/
 	msgbox.ReplaceSel("\r\n服务同步:");
 
 	//删除文件
@@ -321,11 +322,11 @@ void CMBToolsDlg::OnBnClickedOk()
 	//AfxMessageBox(cmd);
 	ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
 	XSleep(2000);
-	//post = "--data-urlencode t=";
-	post = "-d t=";
-	post += Text;
-	cmd = post + " " + HOST + POST;
-	//AfxMessageBox(cmd);
+	post = "--data-urlencode t=";
+	//post = "-d t=";
+	post += GBText;
+	cmd = post + "  " + HOST + POST;
+	AfxMessageBox(cmd);
 	ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
 	XSleep(2000);
 	//列出D:\pic，一个一个POST
@@ -421,7 +422,6 @@ void CMBToolsDlg::OnBnClickedButton1()
 
 	CStdioFile file_r;
 	CStdioFile file_w;
-
 
 	GetDlgItem(IDC_BUTTON1)->GetWindowText(btText);
 
@@ -699,8 +699,8 @@ int CMBToolsDlg::getVMlist() {
 	PROCESS_INFORMATION pi;
 	si.cb = sizeof(STARTUPINFO);
 	GetStartupInfo(&si);
-	si.hStdError = hWrite;            //把创建进程的标准错误输出重定向到管道输入  
-	si.hStdOutput = hWrite;           //把创建进程的标准输出重定向到管道输入  
+	si.hStdError = hWrite;            //把创建进程的标准错误输出重定向到管道输入
+	si.hStdOutput = hWrite;           //把创建进程的标准输出重定向到管道输入
 	si.wShowWindow = SW_HIDE;
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 	//关键步骤，CreateProcess函数参数意义请查阅MSDN  
@@ -874,14 +874,13 @@ void CMBToolsDlg::OnBnClickedButton4()
 }
 
 
-
 //ANSI转UTF8
 void ANSItoUTF8(CString &strAnsi)
 {
 	//获取转换为宽字节后需要的缓冲区大小，创建宽字节缓冲区，936为简体中文GB2312代码页
-	UINT nLen = MultiByteToWideChar(936, NULL, strAnsi, -1, NULL, NULL);
+	UINT nLen = MultiByteToWideChar(CP_ACP, NULL, strAnsi, -1, NULL, NULL);
 	WCHAR *wszBuffer = new WCHAR[nLen + 1];
-	nLen = MultiByteToWideChar(936, NULL, strAnsi, -1, wszBuffer, nLen);
+	nLen = MultiByteToWideChar(CP_ACP, NULL, strAnsi, -1, wszBuffer, nLen);
 	wszBuffer[nLen] = 0;
 	//获取转为UTF8多字节后需要的缓冲区大小，创建多字节缓冲区
 	nLen = WideCharToMultiByte(CP_UTF8, NULL, wszBuffer, -1, NULL, NULL, NULL, NULL);
@@ -994,15 +993,184 @@ void CMBToolsDlg::OnBnClickedButton3()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//副机发朋友圈
-	//RemoveDirectory(%%1);
-	//CreateDirectory(%%1, NULL);
+	msgbox.SetWindowText("");
+	msgbox.ReplaceSel("正在下图:");
+	CString path = "D:\\pic";
+	CString url = "http://mbt.20cn.com/pic/";
+	//RemoveDirectory("D:\\pic");
+	//system("del /s/f/q/a D:\\pic");
+	if (!PathFileExists(path)) {
+		CreateDirectory("D:\\pic", NULL);
+	}
+	else {
+		CFileFind file;
+		BOOL res = file.FindFile(path + "\\*.*");
+		while (res)
+		{
+			res = file.FindNextFile();
+			//不遍历子目录
+			if (!file.IsDirectory() && !file.IsDots())
+			{
+				CString m_file = file.GetFilePath();
+				DeleteFile(m_file);
+			}
+		}
+		file.Close();
+	}
+	DeleteFile("D:\\piclist");
+	Download(url + "list", "D:\\piclist");
+	DeleteFile("D:\\title");
+	Download(url + "title", "D:\\title");
+	XSleep(500);
+	CStdioFile file;
+	CString strLine;
+	if (!file.Open("D:\\piclist", CFile::modeRead)) {
+		AfxMessageBox("发生了错误");
+		return;
+	}
+	else {
+		while (file.ReadString(strLine))
+		{
+			strLine.Trim();
+			//AfxMessageBox(url + strLine);
+			//下载图片
+			Download(url + strLine, path + "\\" + strLine);
+		}
+	}
+	file.Close();
+	CString title;
+	file.Open("D:\\title", CFile::modeRead);
+	while (file.ReadString(strLine))
+	{
+		strLine.Trim();
+		title += strLine;
+	}
+	file.Close();
+	AfxMessageBox(title);
 
+	//发送图片到模拟器
+	CString a = " -s ";
+	CString acction = " push D:\\pic /sdcard/tencent/MicroMsg/WeiXin";
+	CString cmd;
+	CString Msg;
+
+	msgbox.ReplaceSel("\r\n正在上图:");
+	for (int i = 0; i < vmnum; i++) {
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
+		XSleep(500);
+	}
+	acction = " shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/";
+	for (int i = 0; i < vmnum; i++) {
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
+		XSleep(500);
+	}
+
+	//发送脚本到模拟器
+	acction = " push D:\\PutPicSH /sdcard/MBTools/putpic";
+	msgbox.ReplaceSel("\r\n生成指令:");
+	for (int i = 0; i < vmnum; i++) {
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
+		XSleep(500);
+	}
+
+	msgbox.ReplaceSel("\r\n发送指令:");
+	acction = " shell /sdcard/MBTools/putpic";
+	for (int i = 0; i < vmnum; i++) {
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
+		XSleep(1000);
+	}
+
+	msgbox.ReplaceSel("\r\n等待点击:");
+	int stime = 60000/vmnum;
+	for (int i = 0; i < vmnum; i++) {
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
+		XSleep(stime);
+	}
+
+	msgbox.ReplaceSel("\r\n发送文本!");
+	acction = " shell am broadcast -a ADB_INPUT_TEXT --es msg ";
+	ANSItoUTF8(title);
+	acction += title;
+	for (int i = 0; i < vmnum; i++) {
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
+		XSleep(1000);
+	}
+	msgbox.ReplaceSel("\r\n点击发送!");
+	acction = " shell input tap 321 50";
+	for (int i = 0; i < vmnum; i++) {
+		Msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(Msg);
+		cmd = a + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
+		XSleep(2000);
+	}
+
+	msgbox.ReplaceSel("\r\n操作完成!");
 
 }
-
 
 void CMBToolsDlg::OnBnClickedButton7()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//初始化模拟器
+}
+
+
+void CMBToolsDlg::OnBnClickedButton11()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CString Text;
+	CString cmd;
+	CString acction = " shell am broadcast -a ADB_INPUT_TEXT --es msg ";
+
+	GetDlgItemText(IDC_EDIT1, Text);
+	//AfxMessageBox(Text);
+	ANSItoUTF8(Text);
+	acction += Text;
+	msgbox.SetWindowText("");
+	UpdateData(false);
+	GetDlgItem(IDC_EDIT1)->SetFocus();
+	for (int i = 0; i < vmnum; i++) {
+		cmd = " -s " + vmlist[i] + acction;
+		//AfxMessageBox(cmd);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
+		XSleep(500);
+		//cmd = " -s " + vmlist[i] + " shell input keyevent 66";
+		cmd = " -s " + vmlist[i] + " shell input tap 330 410";
+		//AfxMessageBox(cmd);s
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
+	}
+	//msgbox.ReplaceSel("");
+}
+
+
+
+void CMBToolsDlg::OnCbnSelchangeCombo1()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CString Text;
+	//GetDlgItemText(IDC_COMBO1, Text);
+	//msgbox.SetWindowText(Text);
+	//UpdateData(false);
+	//GetDlgItem(IDC_EDIT1)->SetFocus();
 }

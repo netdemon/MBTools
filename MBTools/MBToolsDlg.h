@@ -43,6 +43,7 @@ public:
 	afx_msg void OnBnClickedButton8();
 
 	afx_msg int getVMlist();
+	// int getpiclist();
 
 	CEdit msgbox;
 
@@ -64,6 +65,8 @@ public:
 	afx_msg void OnBnClickedButton6();
 	afx_msg void OnBnClickedButton3();
 	afx_msg void OnBnClickedButton7();
+	afx_msg void OnBnClickedButton11();
+	afx_msg void OnCbnSelchangeCombo1();
 };
 
 CString GetClipBoardText(HWND hWnd);
