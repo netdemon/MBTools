@@ -315,6 +315,7 @@ void CMBToolsDlg::OnBnClickedOk()
 	msgbox.ReplaceSel("\r\n服务同步:");
 
 	//删除文件
+	/*
 	CString post = "-d d=Yes";
 	post += " ";
 	post = post + HOST + POST;
@@ -322,6 +323,9 @@ void CMBToolsDlg::OnBnClickedOk()
 	//AfxMessageBox(cmd);
 	ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
 	XSleep(2000);
+	*/
+
+	CString post = "-d d=Yes";
 	post = "--data-urlencode t=";
 	//post = "-d t=";
 	post += GBText;
@@ -791,40 +795,20 @@ CString GetClipBoardText(HWND hWnd)
 void CMBToolsDlg::OnBnClickedButton9()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	CString ClipBoardText;
-	HWND hWnd = GetSafeHwnd();
-	ClipBoardText = GetClipBoardText(hWnd);
-	AfxMessageBox(ClipBoardText);
-
-	CString addfirfile = "#!/system/bin/sh\
-input keyevent 3\
-am start -n com.tencent.mm/com.tencent.mm.ui.LauncherUI\
-am display-size 320x480\n\
-am display-density 160\n\
-am display-size 360x480\n\
-input tap 133 406\n\
-sleep 1\n\
-input tap 170 100\n\
-sleep 1\n\
-int = 1\n\
-while (($int <= 20))\n\
-do\n\
-input swipe 200 400 200 0\n\
-let \"int++\"\n\
-done\n\
-sleep 1\n\
-add = 1\n\
-while (($add <= 10))\n\
-do\n\
-input tap 322 381\n\
-sleep 1\n\
-let \"add++\"\n\
-done\n\
-";
-	CStdioFile file_w;
-	file_w.Open(_T("D:\\test"), CFile::modeCreate | CFile::modeReadWrite);
-	file_w.WriteString(addfirfile);
-	file_w.Close();
+	SYSTEMTIME systime;
+	GetLocalTime(&systime);
+	CString Msg;
+	/*
+	Msg.Format("%4d/%02d/%02d %02d:%02d:%02d.%03d 星期%1d\n"
+		, systime.wYear, systime.wMonth, systime.wDay
+		, systime.wHour, systime.wMinute, systime.wSecond, systime.wMilliseconds
+		, systime.wDayOfWeek);
+	*/
+	Msg.Format("%d%d%d%d%d%d%d"
+		, systime.wYear, systime.wMonth, systime.wDay
+		, systime.wHour, systime.wMinute, systime.wSecond, systime.wMilliseconds);
+	AfxMessageBox(Msg);
+	//PathFileExists
 
 }
 
@@ -985,7 +969,6 @@ void CMBToolsDlg::OnBnClickedButton6()
 		}
 	}
 	file.Close();
-
 }
 
 
@@ -1095,7 +1078,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 	}
 
 	msgbox.ReplaceSel("\r\n等待点击:");
-	int stime = 60000/vmnum;
+	int stime = 60000 / vmnum;
 	for (int i = 0; i < vmnum; i++) {
 		Msg.Format(" %d", i + 1);
 		msgbox.ReplaceSel(Msg);
