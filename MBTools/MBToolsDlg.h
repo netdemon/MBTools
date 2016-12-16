@@ -68,6 +68,7 @@ public:
 	afx_msg void OnBnClickedButton11();
 	afx_msg void OnCbnSelchangeCombo1();
 	afx_msg void OnBnClickedButton12();
+	CComboBox m_postunit;
 };
 
 CString GetClipBoardText(HWND hWnd);

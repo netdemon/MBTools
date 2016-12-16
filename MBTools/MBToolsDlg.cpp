@@ -61,6 +61,7 @@ void CMBToolsDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT1, msgbox);
+	DDX_Control(pDX, IDC_COMBO2, m_postunit);
 }
 
 BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
@@ -809,22 +810,19 @@ CString GetClipBoardText(HWND hWnd)
 void CMBToolsDlg::OnBnClickedButton9()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SYSTEMTIME systime;
-	GetLocalTime(&systime);
-	CString Time;
-	/*
-	Msg.Format("%4d/%02d/%02d %02d:%02d:%02d.%03d 星期%1d\n"
-		, systime.wYear, systime.wMonth, systime.wDay
-		, systime.wHour, systime.wMinute, systime.wSecond, systime.wMilliseconds
-		, systime.wDayOfWeek);
-	*/
-	Time.Format("%d%d%d%d%d%d%d"
-		, systime.wYear, systime.wMonth, systime.wDay
-		, systime.wHour, systime.wMinute, systime.wSecond, systime.wMilliseconds);
-	//AfxMessageBox(Time);
-	if (!PathFileExists("D:\\picdir")) {
+	//副机发朋友圈TEST
+	msgbox.SetWindowText("正在下图:");
+	//	msgbox.ReplaceSel("正在下图:");
+	int unitnum = 3;
+	CString path = "D:\\pic";
+	CString url = HOST;
+	url += "/pic/";
+	Download(url + "last", "D:\\last");
 
-	}
+
+
+
+
 
 }
 
@@ -993,11 +991,18 @@ void CMBToolsDlg::OnBnClickedButton3()
 	// TODO: 在此添加控件通知处理程序代码
 	//副机发朋友圈
 	msgbox.SetWindowText("");
-	msgbox.ReplaceSel("正在下图:");
+	msgbox.SetWindowText("正在下图:");
+//	msgbox.ReplaceSel("正在下图:");
+	int unitnum = 3;
+
 	CString path = "D:\\pic";
 	CString url = "http://mbt.20cn.com/pic/";
-	//RemoveDirectory("D:\\pic");
-	//system("del /s/f/q/a D:\\pic");
+
+	Download(url + "last", "D:\\last");
+
+
+
+
 	if (!PathFileExists(path)) {
 		CreateDirectory("D:\\pic", NULL);
 	}
@@ -1094,7 +1099,11 @@ void CMBToolsDlg::OnBnClickedButton3()
 	}
 
 	msgbox.ReplaceSel("\r\n等待点击:");
-	int stime = 60000 / vmnum;
+#ifdef DEBUG
+	int stime = 4000 / vmnum;
+#else
+	int stime = 40000 / vmnum;
+#endif
 	for (int i = 0; i < vmnum; i++) {
 		Msg.Format(" %d", i + 1);
 		msgbox.ReplaceSel(Msg);
