@@ -82,6 +82,7 @@ BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON7, &CMBToolsDlg::OnBnClickedButton7)
 	ON_BN_CLICKED(IDC_BUTTON11, &CMBToolsDlg::OnBnClickedButton11)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &CMBToolsDlg::OnCbnSelchangeCombo1)
+	ON_BN_CLICKED(IDC_BUTTON12, &CMBToolsDlg::OnBnClickedButton12)
 END_MESSAGE_MAP()
 
 
@@ -237,12 +238,20 @@ void CMBToolsDlg::OnBnClickedOk()
 	edited = 0;
 
 
+	SYSTEMTIME systime;
+	GetLocalTime(&systime);
+	CString Time;
 	CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
 	CString a = " -s ";
 	CString acction = " push D:\\PutPicSH /sdcard/MBTools/putpic";
 	CString cmd;
 	CString Msg;
 	CString Text;
+	Time.Format("%d%d%d%d%d%d%d"
+		, systime.wYear, systime.wMonth, systime.wDay
+		, systime.wHour, systime.wMinute, systime.wSecond, systime.wMilliseconds);
+	CString id = Time;
+
 
 	GetDlgItemText(IDC_EDIT1, Text);
 	Text.Trim();
@@ -306,7 +315,11 @@ void CMBToolsDlg::OnBnClickedOk()
 	}
 
 	msgbox.ReplaceSel("\r\n等待点击:");
-	int stime = 60000 / vmnum;
+#ifdef DEBUG
+	int stime = 4000 / vmnum;
+#else
+	int stime = 40000 / vmnum;
+#endif
 	for (int i = 0; i < vmnum; i++) {
 		Msg.Format(" %d", i + 1);
 		msgbox.ReplaceSel(Msg);
@@ -325,12 +338,12 @@ void CMBToolsDlg::OnBnClickedOk()
 	XSleep(2000);
 	*/
 
-	CString post = "-d d=Yes";
-	post = "--data-urlencode t=";
-	//post = "-d t=";
+	CString post = "-d id=";
+	post += id;
+	post += " --data-urlencode t=";
 	post += GBText;
 	cmd = post + "  " + HOST + POST;
-	AfxMessageBox(cmd);
+	//AfxMessageBox(cmd);
 	ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
 	XSleep(2000);
 	//列出D:\pic，一个一个POST
@@ -346,10 +359,11 @@ void CMBToolsDlg::OnBnClickedOk()
 		{
 			CString m_file = file.GetFilePath();
 			//upload file
-			CString acction = "-F \"fileToUpload=@"; // d:\\tmp\\";
-			CString cmd;
+			CString acction = "-F id=";
+			acction += id;
+			acction += " -F \"fileToUpload=@";
+			CString cmd = acction + m_file + "\" " + HOST + POST;
 			CString Msg;
-			cmd = acction + m_file + "\" " + HOST + POST;
 			//AfxMessageBox(cmd);
 			XSleep(500);
 			ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
@@ -797,18 +811,20 @@ void CMBToolsDlg::OnBnClickedButton9()
 	// TODO: 在此添加控件通知处理程序代码
 	SYSTEMTIME systime;
 	GetLocalTime(&systime);
-	CString Msg;
+	CString Time;
 	/*
 	Msg.Format("%4d/%02d/%02d %02d:%02d:%02d.%03d 星期%1d\n"
 		, systime.wYear, systime.wMonth, systime.wDay
 		, systime.wHour, systime.wMinute, systime.wSecond, systime.wMilliseconds
 		, systime.wDayOfWeek);
 	*/
-	Msg.Format("%d%d%d%d%d%d%d"
+	Time.Format("%d%d%d%d%d%d%d"
 		, systime.wYear, systime.wMonth, systime.wDay
 		, systime.wHour, systime.wMinute, systime.wSecond, systime.wMilliseconds);
-	AfxMessageBox(Msg);
-	//PathFileExists
+	//AfxMessageBox(Time);
+	if (!PathFileExists("D:\\picdir")) {
+
+	}
 
 }
 
@@ -1156,4 +1172,13 @@ void CMBToolsDlg::OnCbnSelchangeCombo1()
 	//msgbox.SetWindowText(Text);
 	//UpdateData(false);
 	//GetDlgItem(IDC_EDIT1)->SetFocus();
+}
+
+
+void CMBToolsDlg::OnBnClickedButton12()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	msgbox.SetWindowText("");
+	UpdateData(false);
+	GetDlgItem(IDC_EDIT1)->SetFocus();
 }
