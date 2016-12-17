@@ -975,9 +975,14 @@ void CMBToolsDlg::OnBnClickedButton3()
 
 	CString sNum;
 	GetDlgItem(IDC_COMBO2)->GetWindowText(sNum);
+
 	CString path = "D:\\pic";
-	CString geturl = "http://mbt.20cn.com/cgi-bin/d.pl?n=";
-	CString picurl = "http://mbt.20cn.com/pic/";
+	CString geturl = HOST;
+	geturl += DOWN;
+	geturl += "?n=";
+
+	CString picurl = HOST;
+	picurl += "/pic/";
 
 	if (!PathFileExists(path)) {
 		CreateDirectory("D:\\pic", NULL);
@@ -1015,6 +1020,24 @@ void CMBToolsDlg::OnBnClickedButton3()
 			}
 			file.Close();
 			//这里
+			//发送图片到模拟器
+			adb_acction(" push " + idpath + " /sdcard/tencent/MicroMsg/WeiXin", 500);
+			adb_acction(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/", 500);
+			msgbox.ReplaceSel("\r\n发送指令:");
+			adb_acction(" shell /sdcard/MBTools/putpic", 1000);
+			msgbox.ReplaceSel("\r\n等待点击:");
+#ifdef DEBUG
+			int stime = 4000 / vmnum;
+#else
+			int stime = 40000 / vmnum;
+#endif
+			CString Msg;
+			for (int i = 0; i < vmnum; i++) {
+				Msg.Format(" %d", i + 1);
+				msgbox.ReplaceSel(Msg);
+				XSleep(stime);
+			}
+			msgbox.ReplaceSel("\r\n发送文本!");
 			CString title;
 			file.Open(idpath + "\\title", CFile::modeRead);
 			while (file.ReadString(strLine))
@@ -1023,106 +1046,16 @@ void CMBToolsDlg::OnBnClickedButton3()
 				title += strLine;
 			}
 			file.Close();
-			//AfxMessageBox(title);
-
-
+			ANSItoUTF8(title);
+			adb_acction(" shell am broadcast -a ADB_INPUT_TEXT --es msg " + title, 1000);
+			msgbox.ReplaceSel("\r\n点击发送!");
+			adb_acction(" shell input tap 321 50", 2000);
 
 
 			//END这里
 		}
 	}
 	last.Close();
-
-	return;
-
-
-
-
-	CStdioFile file;
-	CString strLine;
-	CString title;
-
-	//发送图片到模拟器
-	CString a = " -s ";
-	CString acction = " push D:\\pic /sdcard/tencent/MicroMsg/WeiXin";
-	CString cmd;
-	CString Msg;
-
-	msgbox.ReplaceSel("\r\n正在上图:");
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(500);
-	}
-	acction = " shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/";
-	for (int i = 0; i < vmnum; i++) {
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(500);
-	}
-
-	//发送脚本到模拟器
-	acction = " push D:\\PutPicSH /sdcard/MBTools/putpic";
-	msgbox.ReplaceSel("\r\n生成指令:");
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(500);
-	}
-
-	msgbox.ReplaceSel("\r\n发送指令:");
-	acction = " shell /sdcard/MBTools/putpic";
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(1000);
-	}
-
-	msgbox.ReplaceSel("\r\n等待点击:");
-#ifdef DEBUG
-	int stime = 4000 / vmnum;
-#else
-	int stime = 40000 / vmnum;
-#endif
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		XSleep(stime);
-	}
-
-	msgbox.ReplaceSel("\r\n发送文本!");
-	acction = " shell am broadcast -a ADB_INPUT_TEXT --es msg ";
-	ANSItoUTF8(title);
-	acction += title;
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(1000);
-	}
-	msgbox.ReplaceSel("\r\n点击发送!");
-	acction = " shell input tap 321 50";
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(2000);
-	}
-
 	msgbox.ReplaceSel("\r\n操作完成!");
 
 }
