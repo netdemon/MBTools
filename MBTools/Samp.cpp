@@ -230,7 +230,28 @@ file_r.Close();
 
 
 /*
-
+if (!PathFileExists(path)) {
+CreateDirectory("D:\\pic", NULL);
+}
+else {
+CFileFind file;
+BOOL res = file.FindFile(path + "\\*.*");
+while (res)
+{
+res = file.FindNextFile();
+//不遍历子目录
+if (!file.IsDirectory() && !file.IsDots())
+{
+CString m_file = file.GetFilePath();
+DeleteFile(m_file);
+}
+}
+file.Close();
+}
+DeleteFile("D:\\piclist");
+Download(picurl + "list", "D:\\piclist");
+DeleteFile("D:\\title");
+Download(picurl + "title", "D:\\title");
 
 
 

@@ -84,6 +84,7 @@ BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON11, &CMBToolsDlg::OnBnClickedButton11)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &CMBToolsDlg::OnCbnSelchangeCombo1)
 	ON_BN_CLICKED(IDC_BUTTON12, &CMBToolsDlg::OnBnClickedButton12)
+	ON_CBN_SELCHANGE(IDC_COMBO2, &CMBToolsDlg::OnCbnSelchangeCombo2)
 END_MESSAGE_MAP()
 
 
@@ -134,6 +135,8 @@ BOOL CMBToolsDlg::OnInitDialog()
 	vmNum.Format(_T("%d"), vmnum);
 	vmNum = "当前模拟器数量：" + vmNum;
 	SetDlgItemText(IDC_STATIC, vmNum);
+	//SetDlgItemText(IDC_COMBO2, "3");
+	m_postunit.SetCurSel(2);
 
 
 	// END在此添加额外的初始化代码
@@ -219,15 +222,8 @@ void CMBToolsDlg::OnBnClickedOk()
 
 	SetDlgItemText(IDOK, "正在发图");
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
-	GetDlgItem(IDC_BUTTON1)->EnableWindow(FALSE);
-	GetDlgItem(IDC_BUTTON2)->EnableWindow(FALSE);
-	GetDlgItem(IDC_BUTTON3)->EnableWindow(FALSE);
-	GetDlgItem(IDC_BUTTON4)->EnableWindow(FALSE);
-	GetDlgItem(IDC_BUTTON5)->EnableWindow(FALSE);
-	GetDlgItem(IDC_BUTTON6)->EnableWindow(FALSE);
-	GetDlgItem(IDC_BUTTON7)->EnableWindow(FALSE);
-	GetDlgItem(IDC_BUTTON8)->EnableWindow(FALSE);
-	GetDlgItem(IDC_BUTTON9)->EnableWindow(FALSE);
+	disableall();
+
 
 	if (edited == 0) {
 		return;
@@ -402,15 +398,7 @@ void CMBToolsDlg::OnBnClickedOk()
 	SetDlgItemText(IDOK, "确定");
 	SetDlgItemText(IDC_BUTTON2, _T("自动发朋友圈"));
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
-	GetDlgItem(IDC_BUTTON1)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON2)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON3)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON5)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON6)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON7)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON8)->EnableWindow(TRUE);
-	GetDlgItem(IDC_BUTTON9)->EnableWindow(TRUE);
+	enableall();
 
 	//SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
 	//GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
@@ -810,18 +798,7 @@ CString GetClipBoardText(HWND hWnd)
 void CMBToolsDlg::OnBnClickedButton9()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	//副机发朋友圈TEST
-	msgbox.SetWindowText("正在下图:");
-	//	msgbox.ReplaceSel("正在下图:");
-	int unitnum = 3;
-	CString path = "D:\\pic";
-	CString url = HOST;
-	url += "/pic/";
-	Download(url + "last", "D:\\last");
-
-
-
-
+	//TEST
 
 
 }
@@ -992,65 +969,78 @@ void CMBToolsDlg::OnBnClickedButton3()
 	//副机发朋友圈
 	msgbox.SetWindowText("");
 	msgbox.SetWindowText("正在下图:");
-//	msgbox.ReplaceSel("正在下图:");
-	int unitnum = 3;
+	//	msgbox.ReplaceSel("正在下图:");
+	int unitnum = m_postunit.GetCurSel();
+	unitnum += 1;
 
+	CString sNum;
+	GetDlgItem(IDC_COMBO2)->GetWindowText(sNum);
 	CString path = "D:\\pic";
-	CString url = "http://mbt.20cn.com/pic/";
-
-	Download(url + "last", "D:\\last");
-
-
-
+	CString geturl = "http://mbt.20cn.com/cgi-bin/d.pl?n=";
+	CString picurl = "http://mbt.20cn.com/pic/";
 
 	if (!PathFileExists(path)) {
 		CreateDirectory("D:\\pic", NULL);
 	}
-	else {
-		CFileFind file;
-		BOOL res = file.FindFile(path + "\\*.*");
-		while (res)
-		{
-			res = file.FindNextFile();
-			//不遍历子目录
-			if (!file.IsDirectory() && !file.IsDots())
-			{
-				CString m_file = file.GetFilePath();
-				DeleteFile(m_file);
-			}
-		}
-		file.Close();
-	}
-	DeleteFile("D:\\piclist");
-	Download(url + "list", "D:\\piclist");
-	DeleteFile("D:\\title");
-	Download(url + "title", "D:\\title");
-	XSleep(500);
-	CStdioFile file;
-	CString strLine;
-	if (!file.Open("D:\\piclist", CFile::modeRead)) {
+	Download(geturl + sNum, "D:\\last");
+	XSleep(3000);
+	CStdioFile last;
+	CString id;
+	if (!last.Open("D:\\last", CFile::modeRead)) {
 		AfxMessageBox("发生了错误");
 		return;
 	}
 	else {
-		while (file.ReadString(strLine))
+		while (last.ReadString(id))
 		{
-			strLine.Trim();
-			//AfxMessageBox(url + strLine);
-			//下载图片
-			Download(url + strLine, path + "\\" + strLine);
+			id.Trim();
+			CString idpath = path + "\\" + id;
+			CreateDirectory(idpath, NULL);
+			Download(picurl + id + "/list", idpath + "\\piclist");
+			Download(picurl + id + "/title", idpath + "\\title");
+			XSleep(500);
+			CStdioFile file;
+			CString strLine;
+			if (!file.Open(idpath + "\\piclist", CFile::modeRead)) {
+				AfxMessageBox("发生了错误");
+				return;
+			}
+			else {
+				while (file.ReadString(strLine))
+				{
+					strLine.Trim();
+					//下载图片
+					Download(picurl + id + "/" + strLine, idpath + "\\" + strLine);
+				}
+			}
+			file.Close();
+			//这里
+			CString title;
+			file.Open(idpath + "\\title", CFile::modeRead);
+			while (file.ReadString(strLine))
+			{
+				strLine.Trim();
+				title += strLine;
+			}
+			file.Close();
+			//AfxMessageBox(title);
+
+
+
+
+			//END这里
 		}
 	}
-	file.Close();
+	last.Close();
+
+	return;
+
+
+
+
+	CStdioFile file;
+	CString strLine;
 	CString title;
-	file.Open("D:\\title", CFile::modeRead);
-	while (file.ReadString(strLine))
-	{
-		strLine.Trim();
-		title += strLine;
-	}
-	file.Close();
-	AfxMessageBox(title);
 
 	//发送图片到模拟器
 	CString a = " -s ";
@@ -1141,6 +1131,16 @@ void CMBToolsDlg::OnBnClickedButton7()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//初始化模拟器
+	disableall();
+	msgbox.SetWindowText("");
+	msgbox.ReplaceSel("正在进行:");
+	adb_acction(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\"", 100);
+	adb_acction(" shell pm clear com.android.providers.media", 100);
+	adb_acction(" push D:\\PutPicSH /sdcard/MBTools/putpic", 100);
+	adb_acction(" push D:\\AddFirSH /sdcard/MBTools/addfir", 100);
+	adb_acction(" push D:\\DelPicSH /sdcard/MBTools/delpic", 100);
+	msgbox.ReplaceSel("\r\n初始成功!");
+	enableall();
 }
 
 
@@ -1165,7 +1165,7 @@ void CMBToolsDlg::OnBnClickedButton11()
 		XSleep(500);
 		//cmd = " -s " + vmlist[i] + " shell input keyevent 66";
 		cmd = " -s " + vmlist[i] + " shell input tap 330 410";
-		//AfxMessageBox(cmd);s
+		//AfxMessageBox(cmd);
 		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 	}
 	//msgbox.ReplaceSel("");
@@ -1191,3 +1191,60 @@ void CMBToolsDlg::OnBnClickedButton12()
 	UpdateData(false);
 	GetDlgItem(IDC_EDIT1)->SetFocus();
 }
+
+
+void CMBToolsDlg::OnCbnSelchangeCombo2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CMBToolsDlg::disableall()
+{
+	GetDlgItem(IDC_BUTTON1)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON2)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON3)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON4)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON5)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON6)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON7)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON8)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON9)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON10)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON11)->EnableWindow(FALSE);
+	GetDlgItem(IDC_BUTTON12)->EnableWindow(FALSE);
+}
+
+void CMBToolsDlg::enableall()
+{
+	GetDlgItem(IDC_BUTTON1)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON2)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON3)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON5)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON6)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON7)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON8)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON9)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON10)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON11)->EnableWindow(TRUE);
+	GetDlgItem(IDC_BUTTON12)->EnableWindow(TRUE);
+}
+
+
+void CMBToolsDlg::adb_acction(CString acction, int sleeptime)
+{
+	CString cmd;
+	CString msg;
+	for (int i = 0; i < vmnum; i++) {
+		msg.Format(" %d", i + 1);
+		msgbox.ReplaceSel(msg);
+		cmd = " -s " + vmlist[i] + " " + acction;
+		//AfxMessageBox(cmd);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
+		XSleep(sleeptime);
+	}
+}
+
+
+

@@ -69,6 +69,10 @@ public:
 	afx_msg void OnCbnSelchangeCombo1();
 	afx_msg void OnBnClickedButton12();
 	CComboBox m_postunit;
+	afx_msg void OnCbnSelchangeCombo2();
+	void disableall();
+	void enableall();
+	void adb_acction(CString acction, int sleeptime);
 };
 
 CString GetClipBoardText(HWND hWnd);

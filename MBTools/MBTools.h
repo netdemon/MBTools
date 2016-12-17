@@ -10,13 +10,12 @@
 
 #include "resource.h"		// 主符号
 
-
 #define HOST	"http://mbt.20cn.com"
 #define POST	"/cgi-bin/u.pl"
+#define DOWN	"/cgi-bin/d.pl"
 #define ADB		"D:\\Program Files\\Microvirt\\MEmu\\adb.exe"
 #define CURL	"D:\\curl.exe"
-
-
+#define MYPATH	"D:\\MBTools\\"
 
 // CMBToolsApp: 
 // 有关此类的实现，请参阅 MBTools.cpp
