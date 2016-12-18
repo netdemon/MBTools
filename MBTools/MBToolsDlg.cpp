@@ -82,8 +82,8 @@ BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON3, &CMBToolsDlg::OnBnClickedButton3)
 	ON_BN_CLICKED(IDC_BUTTON7, &CMBToolsDlg::OnBnClickedButton7)
 	ON_BN_CLICKED(IDC_BUTTON11, &CMBToolsDlg::OnBnClickedButton11)
-	ON_CBN_SELCHANGE(IDC_COMBO1, &CMBToolsDlg::OnCbnSelchangeCombo1)
 	ON_BN_CLICKED(IDC_BUTTON12, &CMBToolsDlg::OnBnClickedButton12)
+	ON_CBN_SELCHANGE(IDC_COMBO1, &CMBToolsDlg::OnCbnSelchangeCombo1)
 	ON_CBN_SELCHANGE(IDC_COMBO2, &CMBToolsDlg::OnCbnSelchangeCombo2)
 END_MESSAGE_MAP()
 
@@ -224,7 +224,6 @@ void CMBToolsDlg::OnBnClickedOk()
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
 	disableall();
 
-
 	if (edited == 0) {
 		return;
 	}
@@ -234,11 +233,9 @@ void CMBToolsDlg::OnBnClickedOk()
 	}
 	edited = 0;
 
-
 	SYSTEMTIME systime;
 	GetLocalTime(&systime);
 	CString Time;
-	CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
 	CString a = " -s ";
 	CString acction = " push D:\\PutPicSH /sdcard/MBTools/putpic";
 	CString cmd;
@@ -272,7 +269,7 @@ void CMBToolsDlg::OnBnClickedOk()
 		msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 		XSleep(500);
 	}
 
@@ -284,7 +281,7 @@ void CMBToolsDlg::OnBnClickedOk()
 	msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 		XSleep(200);
 	}
 	acction = " shell am start -n com.tencent.mm/com.tencent.mm.ui.LauncherUI";
@@ -294,7 +291,7 @@ void CMBToolsDlg::OnBnClickedOk()
 	msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 		XSleep(1000);
 	}
 	*/
@@ -307,7 +304,7 @@ void CMBToolsDlg::OnBnClickedOk()
 		msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 		XSleep(1000);
 	}
 
@@ -380,7 +377,7 @@ void CMBToolsDlg::OnBnClickedOk()
 		msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 		XSleep(1000);
 	}
 	msgbox.ReplaceSel("\r\n点击发送!");
@@ -390,7 +387,7 @@ void CMBToolsDlg::OnBnClickedOk()
 		msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 		XSleep(2000);
 	}
 
@@ -495,7 +492,6 @@ void CMBToolsDlg::OnBnClickedButton1()
 			exit(1);
 		}
 
-		CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
 		CString a = " -s ";
 		CString acction = " shell pm clear com.android.providers.contacts";
 		CString cmd;
@@ -534,7 +530,7 @@ void CMBToolsDlg::OnBnClickedButton1()
 			msgbox.ReplaceSel(Msg);
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);  //DEL
-			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+			ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 			XSleep(500);
 		}
 
@@ -550,7 +546,7 @@ void CMBToolsDlg::OnBnClickedButton1()
 			acction += " /sdcard/contacts.vcf";
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);  //COPY
-			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+			ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 			XSleep(500);
 		}
 
@@ -562,7 +558,7 @@ void CMBToolsDlg::OnBnClickedButton1()
 			acction = " shell am start -t \"text/x-vcard\" -d \"file:///sdcard/contacts.vcf\" -a android.intent.action.VIEW com.android.contacts";
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);
-			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+			ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 			XSleep(500);
 		}
 
@@ -595,7 +591,6 @@ void CMBToolsDlg::OnBnClickedButton2()
 		HWND hWnd = GetSafeHwnd();
 		ClipBoardText = GetClipBoardText(hWnd);
 
-		CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
 		CString a = " -s ";
 		CString acction = " pull /sdcard/tencent/MicroMsg/WeiXin D:\\pic";
 		CString cmd;
@@ -608,7 +603,7 @@ void CMBToolsDlg::OnBnClickedButton2()
 			msgbox.ReplaceSel(Msg);
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);
-			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+			ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 			XSleep(500);
 		}
 		//msgbox.ReplaceSel("\r\n保存完成!");
@@ -620,7 +615,7 @@ void CMBToolsDlg::OnBnClickedButton2()
 			msgbox.ReplaceSel(Msg);
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);
-			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+			ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 			XSleep(500);
 		}
 
@@ -628,7 +623,7 @@ void CMBToolsDlg::OnBnClickedButton2()
 		for (int i = 0; i < vmnum; i++) {
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);
-			ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+			ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 			XSleep(500);
 		}
 		msgbox.SetWindowText(ClipBoardText);
@@ -656,6 +651,7 @@ void CMBToolsDlg::OnBnClickedButton10()
 void CMBToolsDlg::OnBnClickedButton8()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	//清除
 	GetDlgItem(IDC_BUTTON8)->EnableWindow(FALSE);
 
 	if (vmnum == 0) {
@@ -663,7 +659,6 @@ void CMBToolsDlg::OnBnClickedButton8()
 		exit(1);
 	}
 
-	CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
 	CString a = " -s ";
 	CString acction = " shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\"";
 	CString cmd;
@@ -677,14 +672,14 @@ void CMBToolsDlg::OnBnClickedButton8()
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
 		XSleep(500);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 	}
 	acction = " shell pm clear com.android.providers.media";
 	for (int i = 0; i < vmnum; i++) {
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
 		XSleep(100);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 	}
 	msgbox.ReplaceSel("\r\n清理成功!");
 	GetDlgItem(IDC_BUTTON8)->EnableWindow(TRUE);
@@ -710,8 +705,10 @@ int CMBToolsDlg::getVMlist() {
 	si.hStdOutput = hWrite;           //把创建进程的标准输出重定向到管道输入
 	si.wShowWindow = SW_HIDE;
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-	//关键步骤，CreateProcess函数参数意义请查阅MSDN  
-	if (!CreateProcess(NULL, "D:\\Program Files\\Microvirt\\MEmu\\adb.exe devices", NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi))
+	//关键步骤，CreateProcess函数参数意义请查阅MSDN
+	CString adb = ADB;
+	adb += " devices";
+	if (!CreateProcess(NULL, (LPSTR)(LPCTSTR)adb, NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi))
 	{
 		CloseHandle(hWrite);
 		CloseHandle(hRead);
@@ -731,7 +728,6 @@ int CMBToolsDlg::getVMlist() {
 		bf += buffer;
 	}
 	CloseHandle(hRead);
-
 	CStdioFile file_r, file_w;
 	file_w.Open(_T("D:\\vmlist"), CFile::modeCreate | CFile::modeReadWrite);//如果文件事先不存在的话，就需要CFile::modeCreate，否则就不需要。
 	file_w.WriteString(bf);
@@ -816,7 +812,6 @@ void CMBToolsDlg::OnBnClickedButton4()
 		exit(1);
 	}
 
-	CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
 	CString a = " -s ";
 	CString acction = " push D:\\AddFirSH /sdcard/MBTools/addfir";
 	CString cmd;
@@ -829,7 +824,7 @@ void CMBToolsDlg::OnBnClickedButton4()
 		msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 		XSleep(500);
 	}
 
@@ -840,7 +835,7 @@ void CMBToolsDlg::OnBnClickedButton4()
 		msgbox.ReplaceSel(Msg);
 		cmd = a + vmlist[i] + acction;
 		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
 		XSleep(1000);
 	}
 	msgbox.ReplaceSel("\r\n操作成功!");
@@ -967,9 +962,11 @@ void CMBToolsDlg::OnBnClickedButton3()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//副机发朋友圈
-	msgbox.SetWindowText("");
-	msgbox.SetWindowText("正在下图:");
-	//	msgbox.ReplaceSel("正在下图:");
+	//msgbox.SetWindowText("");
+	//msgbox.SetWindowText("正在下图:");
+	disableall();
+
+	msgbox.ReplaceSel("正在下图:");
 	int unitnum = m_postunit.GetCurSel();
 	unitnum += 1;
 
@@ -1022,6 +1019,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 			//这里
 			//发送图片到模拟器
 			adb_acction(" push " + idpath + " /sdcard/tencent/MicroMsg/WeiXin", 500);
+			AfxMessageBox(idpath);
 			adb_acction(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/", 500);
 			msgbox.ReplaceSel("\r\n发送指令:");
 			adb_acction(" shell /sdcard/MBTools/putpic", 1000);
@@ -1047,16 +1045,20 @@ void CMBToolsDlg::OnBnClickedButton3()
 			}
 			file.Close();
 			ANSItoUTF8(title);
-			adb_acction(" shell am broadcast -a ADB_INPUT_TEXT --es msg " + title, 1000);
+			adb_acction(" shell am broadcast -a ADB_INPUT_TEXT --es msg  " + title, 1000);
 			msgbox.ReplaceSel("\r\n点击发送!");
 			adb_acction(" shell input tap 321 50", 2000);
-
+			//清除模拟器图片For点击
+			msgbox.ReplaceSel("\r\n清理图片!");
+			adb_acction(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\"", 2000);
+			adb_acction(" shell pm clear com.android.providers.media",100);
 
 			//END这里
 		}
 	}
 	last.Close();
 	msgbox.ReplaceSel("\r\n操作完成!");
+	enableall();
 
 }
 
