@@ -8,13 +8,6 @@
 #include <string>  
 using namespace std;
 
-typedef struct FileInfo
-{
-	DWORD  nFileLen;
-	DWORD  nFileHighLen;
-	LPSTR FileBuf;
-}FileInfo, *pFileInfo;
-
 BOOL Download(const CString& strFileURLInServer,	//待下载文件的URL
 	const CString & strFileLocalFullPath);			//存放到本地的路径
 

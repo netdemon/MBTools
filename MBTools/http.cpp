@@ -2,10 +2,9 @@
 #include "stdafx.h"
 #include "http.h"
 
-
 //1、下载文件
-BOOL Download(const CString& strFileURLInServer, //待下载文件的URL
-	const CString & strFileLocalFullPath)//存放到本地的路径
+BOOL Download(const CString& strFileURLInServer,	//待下载文件的URL
+	const CString & strFileLocalFullPath)			//存放到本地的路径
 {
 	ASSERT(strFileURLInServer != "");
 	ASSERT(strFileLocalFullPath != "");
@@ -16,8 +15,8 @@ BOOL Download(const CString& strFileURLInServer, //待下载文件的URL
 	INTERNET_PORT wPort;
 	DWORD dwType;
 	const int nTimeOut = 2000;
-	session.SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, nTimeOut); //重试之间的等待延时
-	session.SetOption(INTERNET_OPTION_CONNECT_RETRIES, 1);   //重试次数
+	session.SetOption(INTERNET_OPTION_CONNECT_TIMEOUT, nTimeOut);	//重试之间的等待延时
+	session.SetOption(INTERNET_OPTION_CONNECT_RETRIES, 1);			//重试次数
 	char* pszBuffer = NULL;
 	try
 	{
@@ -40,7 +39,6 @@ BOOL Download(const CString& strFileURLInServer, //待下载文件的URL
 				session.Close();
 				return false;
 			}
-
 			char szInfoBuffer[1000];  //返回消息
 			DWORD dwFileSize = 0;   //文件长度
 			DWORD dwInfoBufferSize = sizeof(szInfoBuffer);
