@@ -587,10 +587,11 @@ int CMBToolsDlg::getVMlist() {
 	si.hStdOutput = hWrite;           //把创建进程的标准输出重定向到管道输入
 	si.wShowWindow = SW_HIDE;
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-	//关键步骤，CreateProcess函数参数意义请查阅MSDN
-	CString adb = ADB;
-	adb += " devices";
-	if (!CreateProcess(NULL, (LPSTR)(LPCTSTR)adb, NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi))
+	TCHAR cmd[MAX_PATH] = _T("D:\\Program Files\\Microvirt\\MEmu\\adb.exe devices");
+	AfxMessageBox(cmd);
+	return;
+
+	if (!CreateProcess(NULL, cmd, NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi))
 	{
 		CloseHandle(hWrite);
 		CloseHandle(hRead);
@@ -693,7 +694,7 @@ void CMBToolsDlg::OnBnClickedButton4()
 	GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
 }
 
-
+/*
 void ANSItoUTF8(CString &strAnsi)
 {
 	//获取转换为宽字节后需要的缓冲区大小，创建宽字节缓冲区，936为简体中文GB2312代码页
@@ -710,6 +711,23 @@ void ANSItoUTF8(CString &strAnsi)
 	//内存清理
 	delete[]wszBuffer;
 	delete[]szBuffer;
+}
+*/
+
+void ANSItoUTF8(CString &strAnsi)
+{
+	strAnsi = UnicodeToUTF8(strAnsi);
+}
+
+char * UnicodeToUTF8(const wchar_t* str)
+{
+	char* result;
+	int textlen;
+	textlen = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
+	result = (char *)malloc((textlen + 1) * sizeof(char));
+	memset(result, 0, sizeof(char) * (textlen + 1));
+	WideCharToMultiByte(CP_UTF8, 0, str, -1, result, textlen, NULL, NULL);
+	return result;
 }
 
 
