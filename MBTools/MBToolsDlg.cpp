@@ -117,7 +117,6 @@ BOOL CMBToolsDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-
 	SetDlgItemText(IDC_BUTTON1, _T("打开导号文件"));
 	SetDlgItemText(IDC_BUTTON2, _T("主机发朋友圈"));
 	SetDlgItemText(IDC_BUTTON3, _T("副机发朋友圈"));
@@ -272,7 +271,7 @@ void CMBToolsDlg::OnBnClickedOk()
 	}
 	*/
 
-	msgbox.ReplaceSel(_T("\r\n发送指令:"));
+	msgbox.ReplaceSel(_T("发送指令:"));
 	adb_acction(_T(" shell /sdcard/MBTools/putpic"), 1000);
 	msgbox.ReplaceSel(_T("\r\n等待点击:"));
 
@@ -588,9 +587,6 @@ int CMBToolsDlg::getVMlist() {
 	si.wShowWindow = SW_HIDE;
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 	TCHAR cmd[MAX_PATH] = _T("D:\\Program Files\\Microvirt\\MEmu\\adb.exe devices");
-	AfxMessageBox(cmd);
-	return 5;
-
 	if (!CreateProcess(NULL, cmd, NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi))
 	{
 		CloseHandle(hWrite);
