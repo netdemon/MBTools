@@ -146,10 +146,6 @@ return ClipBoardText;
 */
 
 
-
-
-
-
 /*
 //#define EXECDOSCMD "dir /?" //可以换成你的命令
 SECURITY_ATTRIBUTES sa;
