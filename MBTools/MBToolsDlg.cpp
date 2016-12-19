@@ -13,7 +13,6 @@
 #define new DEBUG_NEW
 #endif
 
-
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialog
@@ -48,8 +47,6 @@ END_MESSAGE_MAP()
 
 
 // CMBToolsDlg 对话框
-
-
 
 CMBToolsDlg::CMBToolsDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(IDD_MBTOOLS_DIALOG, pParent)
@@ -122,7 +119,7 @@ BOOL CMBToolsDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 
 	SetDlgItemText(IDC_BUTTON1, _T("打开导号文件"));
-	SetDlgItemText(IDC_BUTTON2, _T("自动发朋友圈"));
+	SetDlgItemText(IDC_BUTTON2, _T("主机发朋友圈"));
 	SetDlgItemText(IDC_BUTTON3, _T("副机发朋友圈"));
 	SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
 	SetDlgItemText(IDC_BUTTON5, _T("删除朋友圈一"));
@@ -135,7 +132,6 @@ BOOL CMBToolsDlg::OnInitDialog()
 	vmNum.Format(_T("%d"), vmnum);
 	vmNum = "当前模拟器数量：" + vmNum;
 	SetDlgItemText(IDC_STATIC, vmNum);
-	//SetDlgItemText(IDC_COMBO2, "3");
 	m_postunit.SetCurSel(2);
 
 
@@ -194,7 +190,6 @@ HCURSOR CMBToolsDlg::OnQueryDragIcon()
 }
 
 
-
 void CMBToolsDlg::OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -223,29 +218,21 @@ void CMBToolsDlg::OnBnClickedOk()
 	SetDlgItemText(IDOK, "正在发图");
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
 	disableall();
-
 	if (edited == 0) {
 		return;
-	}
-	if (vmnum == 0) {
-		AfxMessageBox("严重错误");
-		exit(1);
 	}
 	edited = 0;
 
 	SYSTEMTIME systime;
 	GetLocalTime(&systime);
 	CString Time;
-	CString a = " -s ";
-	CString acction = " push D:\\PutPicSH /sdcard/MBTools/putpic";
-	CString cmd;
-	CString Msg;
 	CString Text;
 	Time.Format("%d%d%d%d%d%d%d"
 		, systime.wYear, systime.wMonth, systime.wDay
 		, systime.wHour, systime.wMinute, systime.wSecond, systime.wMilliseconds);
 	CString id = Time;
-
+	CString cmd;
+	CString Msg;
 
 	GetDlgItemText(IDC_EDIT1, Text);
 	Text.Trim();
@@ -262,16 +249,6 @@ void CMBToolsDlg::OnBnClickedOk()
 
 	msgbox.SetWindowText("");
 	UpdateData(FALSE);
-
-	msgbox.ReplaceSel("生成指令:");
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(500);
-	}
 
 	/*
 	acction = " shell am force-stop com.tencent.mm";
@@ -296,19 +273,10 @@ void CMBToolsDlg::OnBnClickedOk()
 	}
 	*/
 
-
 	msgbox.ReplaceSel("\r\n发送指令:");
-	acction = " shell /sdcard/MBTools/putpic";
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(1000);
-	}
-
+	adb_acction(" shell /sdcard/MBTools/putpic", 1000);
 	msgbox.ReplaceSel("\r\n等待点击:");
+
 #ifdef DEBUG
 	int stime = 4000 / vmnum;
 #else
@@ -359,49 +327,28 @@ void CMBToolsDlg::OnBnClickedOk()
 			CString cmd = acction + m_file + "\" " + HOST + POST;
 			CString Msg;
 			//AfxMessageBox(cmd);
-			XSleep(500);
 			ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
+			XSleep(500);
+			//del file
+			////////////////////////////////////////////////////////
 		}
 	}
 	file.Close();
-	//
 
-
-	//
 	msgbox.ReplaceSel("\r\n发送文本!");
-	acction = " shell am broadcast -a ADB_INPUT_TEXT --es msg ";
-	acction += Text;
-	//acction += "'";
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(1000);
-	}
+	adb_acction(" shell am broadcast -a ADB_INPUT_TEXT --es msg " + Text, 1000);
 	msgbox.ReplaceSel("\r\n点击发送!");
-	acction = " shell input tap 321 50";
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(2000);
-	}
-
+	adb_acction(" shell input tap 321 50", 2000);
 	msgbox.ReplaceSel("\r\n操作完成!");
+
 	SetDlgItemText(IDOK, "确定");
-	SetDlgItemText(IDC_BUTTON2, _T("自动发朋友圈"));
+	SetDlgItemText(IDC_BUTTON2, _T("主机发朋友圈"));
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
 	enableall();
-
 	//SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
 	//GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
 	//theApp.GetMainWnd()->ShowWindow(SW_MINIMIZE);//最小化窗口
 	//CDialog::OnOK();
-
 }
 
 
@@ -483,10 +430,8 @@ void CMBToolsDlg::OnBnClickedButton1()
 	}
 	else {
 		// 导号操作
-		//AfxMessageBox("导号操作开始");
 		GetDlgItem(IDC_BUTTON1)->EnableWindow(FALSE);
 		SetDlgItemText(IDC_BUTTON1, "导号中...");
-
 		if (vmnum == 0) {
 			AfxMessageBox("严重错误");
 			exit(1);
@@ -575,72 +520,35 @@ void CMBToolsDlg::OnBnClickedButton2()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	if (MessageBox("确保所有模拟器图库为空\r\n使用任一模拟器手工保存最多9张图片并复制文字后按确定\r\n不然可能出错,没准备好请按取消并重新准备好", "准备好了吗？", MB_OKCANCEL) == IDOK) {
-		//AfxMessageBox("OK");
-		//保存已存微信图片到本地  adb pull /sdcard/tencent/MicroMsg/WeiXin D:\\pic
 		SetDlgItemText(IDC_BUTTON2, "等待编辑文字");
 		GetDlgItem(IDC_BUTTON2)->EnableWindow(FALSE);
 		GetDlgItem(IDOK)->EnableWindow(FALSE);
 		edited = 0;
 
-		if (vmnum == 0) {
-			AfxMessageBox("严重错误");
-			exit(1);
-		}
-
 		CString ClipBoardText;
 		HWND hWnd = GetSafeHwnd();
 		ClipBoardText = GetClipBoardText(hWnd);
 
-		CString a = " -s ";
-		CString acction = " pull /sdcard/tencent/MicroMsg/WeiXin D:\\pic";
-		CString cmd;
-		CString Msg;
-
 		msgbox.SetWindowText("");
 		msgbox.ReplaceSel("正在下图:");
-		for (int i = 0; i < vmnum; i++) {
-			Msg.Format(" %d", i + 1);
-			msgbox.ReplaceSel(Msg);
-			cmd = a + vmlist[i] + acction;
-			//AfxMessageBox(cmd);
-			ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-			XSleep(500);
-		}
-		//msgbox.ReplaceSel("\r\n保存完成!");
-
-		acction = " push D:\\pic /sdcard/tencent/MicroMsg/WeiXin";
+		adb_acction(" pull /sdcard/tencent/MicroMsg/WeiXin D:\\pic", 500);
 		msgbox.ReplaceSel("\r\n正在上图:");
-		for (int i = 0; i < vmnum; i++) {
-			Msg.Format(" %d", i + 1);
-			msgbox.ReplaceSel(Msg);
-			cmd = a + vmlist[i] + acction;
-			//AfxMessageBox(cmd);
-			ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-			XSleep(500);
-		}
-
-		acction = " shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/";
-		for (int i = 0; i < vmnum; i++) {
-			cmd = a + vmlist[i] + acction;
-			//AfxMessageBox(cmd);
-			ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-			XSleep(500);
-		}
+		adb_acction(" push D:\\pic /sdcard/tencent/MicroMsg/WeiXin", 500);
+		msgbox.ReplaceSel("\r\n刷新图库:");
+		adb_acction(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/", 500);
 		msgbox.SetWindowText(ClipBoardText);
 		edited = 1;
-
 	}
 	else {
 		//AfxMessageBox("Cancel");
+		return;
 	}
 }
 
 
-
-
 void CMBToolsDlg::OnBnClickedButton10()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	//刷新模拟器
 	vmnum = getVMlist();
 	vmNum.Format(_T("%d"), vmnum);
 	vmNum = "当前模拟器数量：" + vmNum;
@@ -650,37 +558,12 @@ void CMBToolsDlg::OnBnClickedButton10()
 
 void CMBToolsDlg::OnBnClickedButton8()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	//清除
+	//清除图片
 	GetDlgItem(IDC_BUTTON8)->EnableWindow(FALSE);
-
-	if (vmnum == 0) {
-		AfxMessageBox("严重错误");
-		exit(1);
-	}
-
-	CString a = " -s ";
-	CString acction = " shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\"";
-	CString cmd;
-	CString Msg;
-
 	msgbox.SetWindowText("");
 	msgbox.ReplaceSel("正在清理:");
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		XSleep(500);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-	}
-	acction = " shell pm clear com.android.providers.media";
-	for (int i = 0; i < vmnum; i++) {
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		XSleep(100);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-	}
+	adb_acction(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\"", 1000);
+	adb_acction(" shell pm clear com.android.providers.media", 1000);
 	msgbox.ReplaceSel("\r\n清理成功!");
 	GetDlgItem(IDC_BUTTON8)->EnableWindow(TRUE);
 }
@@ -715,7 +598,7 @@ int CMBToolsDlg::getVMlist() {
 		return FALSE;
 	}
 	CloseHandle(hWrite);
-	char buffer[65536] = { 0 };       //用4K的空间来存储输出的内容，只要不是显示文件内容，一般情况下是够用了。  
+	char buffer[4096] = { 0 };       //用4K的空间来存储输出的内容，只要不是显示文件内容，一般情况下是够用了。  
 	DWORD bytesRead;
 	CString bf;
 	while (true)
@@ -729,7 +612,7 @@ int CMBToolsDlg::getVMlist() {
 	}
 	CloseHandle(hRead);
 	CStdioFile file_r, file_w;
-	file_w.Open(_T("D:\\vmlist"), CFile::modeCreate | CFile::modeReadWrite);//如果文件事先不存在的话，就需要CFile::modeCreate，否则就不需要。
+	file_w.Open(_T("D:\\vmlist"), CFile::modeCreate | CFile::modeReadWrite);
 	file_w.WriteString(bf);
 	file_w.Close();
 	XSleep(200);
@@ -756,7 +639,6 @@ int CMBToolsDlg::getVMlist() {
 	vmnum = vmlist.GetSize();
 	return vmnum;
 }
-
 
 
 //获取剪贴板文本内容  
@@ -796,55 +678,23 @@ void CMBToolsDlg::OnBnClickedButton9()
 	// TODO: 在此添加控件通知处理程序代码
 	//TEST
 
-
 }
 
 
 void CMBToolsDlg::OnBnClickedButton4()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	//自动加人
 	SetDlgItemText(IDC_BUTTON4, "正在进行加人");
 	GetDlgItem(IDC_BUTTON4)->EnableWindow(FALSE);
-	//GetDlgItem(IDD_MBTOOLS_DIALOG)->EnableWindow(FALSE);
-
-	if (vmnum == 0) {
-		AfxMessageBox("严重错误");
-		exit(1);
-	}
-
-	CString a = " -s ";
-	CString acction = " push D:\\AddFirSH /sdcard/MBTools/addfir";
-	CString cmd;
-	CString Msg;
-
 	msgbox.SetWindowText("");
-	msgbox.ReplaceSel("生成指令:");
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(500);
-	}
-
-	msgbox.ReplaceSel("\r\n发送指令:");
-	acction = " shell /sdcard/MBTools/addfir";
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(1000);
-	}
-	msgbox.ReplaceSel("\r\n操作成功!");
+	msgbox.ReplaceSel("正在加人:");
+	adb_acction(" shell /sdcard/MBTools/addfir", 1000);
+	msgbox.ReplaceSel("\r\n操作完成!");
 	SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
 	GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
 }
 
 
-//ANSI转UTF8
 void ANSItoUTF8(CString &strAnsi)
 {
 	//获取转换为宽字节后需要的缓冲区大小，创建宽字节缓冲区，936为简体中文GB2312代码页
@@ -863,40 +713,14 @@ void ANSItoUTF8(CString &strAnsi)
 	delete[]szBuffer;
 }
 
+
 void CMBToolsDlg::OnBnClickedButton5()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	//删除朋友圈
 	GetDlgItem(IDC_BUTTON5)->EnableWindow(FALSE);
-
-	if (vmnum == 0) {
-		AfxMessageBox("严重错误");
-		exit(1);
-	}
-
-	CString adb = "D:\\Program Files\\Microvirt\\MEmu\\adb.exe";
-	CString a = " -s ";
-	CString acction = " push D:\\DelPicSH /sdcard/MBTools/delpic";
-
-	CString cmd;
-	CString Msg;
-
 	msgbox.SetWindowText("");
 	msgbox.ReplaceSel("正在删除:");
-	for (int i = 0; i < vmnum; i++) {
-		Msg.Format(" %d", i + 1);
-		msgbox.ReplaceSel(Msg);
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		XSleep(500);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-	}
-	acction = " shell /sdcard/MBTools/delpic";
-	for (int i = 0; i < vmnum; i++) {
-		cmd = a + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		XSleep(100);
-		ShellExecute(NULL, "open", adb, cmd, "", SW_HIDE);
-	}
+	adb_acction(" shell /sdcard/MBTools/delpic", 1000);
 	msgbox.ReplaceSel("\r\n删除成功!");
 	GetDlgItem(IDC_BUTTON5)->EnableWindow(TRUE);
 }
@@ -960,19 +784,17 @@ void CMBToolsDlg::OnBnClickedButton6()
 
 void CMBToolsDlg::OnBnClickedButton3()
 {
-	// TODO: 在此添加控件通知处理程序代码
 	//副机发朋友圈
-	//msgbox.SetWindowText("");
-	//msgbox.SetWindowText("正在下图:");
 	disableall();
-
+	m_postunit.EnableWindow(FALSE);
+	msgbox.EnableWindow(FALSE);
+	msgbox.SetWindowText("");
 	msgbox.ReplaceSel("正在下图:");
-	int unitnum = m_postunit.GetCurSel();
-	unitnum += 1;
+	//int unitnum = m_postunit.GetCurSel();
+	//unitnum += 1;
 
 	CString sNum;
 	GetDlgItem(IDC_COMBO2)->GetWindowText(sNum);
-
 	CString path = "D:\\pic";
 	CString geturl = HOST;
 	geturl += DOWN;
@@ -1018,9 +840,8 @@ void CMBToolsDlg::OnBnClickedButton3()
 			file.Close();
 			//这里
 			//发送图片到模拟器
-			adb_acction(" push " + idpath + " /sdcard/tencent/MicroMsg/WeiXin", 500);
-			AfxMessageBox(idpath);
-			adb_acction(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/", 500);
+			adb_acction(" push " + idpath + " /sdcard/tencent/MicroMsg/WeiXin", 1000);
+			adb_acction(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/", 2000);
 			msgbox.ReplaceSel("\r\n发送指令:");
 			adb_acction(" shell /sdcard/MBTools/putpic", 1000);
 			msgbox.ReplaceSel("\r\n等待点击:");
@@ -1050,68 +871,62 @@ void CMBToolsDlg::OnBnClickedButton3()
 			adb_acction(" shell input tap 321 50", 2000);
 			//清除模拟器图片For点击
 			msgbox.ReplaceSel("\r\n清理图片!");
-			adb_acction(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\"", 2000);
-			adb_acction(" shell pm clear com.android.providers.media",100);
-
+			adb_acction(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\"", 1000);
+			adb_acction(" shell pm clear com.android.providers.media", 1000);
 			//END这里
+			XSleep(5000);
 		}
 	}
 	last.Close();
 	msgbox.ReplaceSel("\r\n操作完成!");
 	enableall();
-
+	msgbox.EnableWindow(TRUE);
+	m_postunit.EnableWindow(TRUE);
 }
 
 void CMBToolsDlg::OnBnClickedButton7()
 {
-	// TODO: 在此添加控件通知处理程序代码
 	//初始化模拟器
 	disableall();
 	msgbox.SetWindowText("");
 	msgbox.ReplaceSel("正在进行:");
-	adb_acction(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\"", 100);
-	adb_acction(" shell pm clear com.android.providers.media", 100);
-	adb_acction(" push D:\\PutPicSH /sdcard/MBTools/putpic", 100);
-	adb_acction(" push D:\\AddFirSH /sdcard/MBTools/addfir", 100);
-	adb_acction(" push D:\\DelPicSH /sdcard/MBTools/delpic", 100);
-	msgbox.ReplaceSel("\r\n初始成功!");
+	adb_acction(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\"", 500);
+	adb_acction(" shell pm clear com.android.providers.media", 500);
+	adb_acction(" push D:\\PutPicSH /sdcard/MBTools/putpic", 500);
+	adb_acction(" push D:\\AddFirSH /sdcard/MBTools/addfir", 500);
+	adb_acction(" push D:\\DelPicSH /sdcard/MBTools/delpic", 500);
+	msgbox.ReplaceSel("\r\n初始化完成!");
 	enableall();
 }
 
 
 void CMBToolsDlg::OnBnClickedButton11()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	//发送聊天内容
 	CString Text;
 	CString cmd;
 	CString acction = " shell am broadcast -a ADB_INPUT_TEXT --es msg ";
 
 	GetDlgItemText(IDC_EDIT1, Text);
-	//AfxMessageBox(Text);
 	ANSItoUTF8(Text);
 	acction += Text;
+	for (int i = 0; i < vmnum; i++) {
+		cmd = " -s " + vmlist[i] + acction;
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
+		XSleep(250);
+		//cmd = " -s " + vmlist[i] + " shell input keyevent 66";
+		cmd = " -s " + vmlist[i] + " shell input tap 330 410";
+		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
+	}
 	msgbox.SetWindowText("");
 	UpdateData(false);
 	GetDlgItem(IDC_EDIT1)->SetFocus();
-	for (int i = 0; i < vmnum; i++) {
-		cmd = " -s " + vmlist[i] + acction;
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-		XSleep(500);
-		//cmd = " -s " + vmlist[i] + " shell input keyevent 66";
-		cmd = " -s " + vmlist[i] + " shell input tap 330 410";
-		//AfxMessageBox(cmd);
-		ShellExecute(NULL, "open", ADB, cmd, "", SW_HIDE);
-	}
-	//msgbox.ReplaceSel("");
 }
-
 
 
 void CMBToolsDlg::OnCbnSelchangeCombo1()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	CString Text;
 	//GetDlgItemText(IDC_COMBO1, Text);
 	//msgbox.SetWindowText(Text);
 	//UpdateData(false);
@@ -1150,6 +965,7 @@ void CMBToolsDlg::disableall()
 	GetDlgItem(IDC_BUTTON12)->EnableWindow(FALSE);
 }
 
+
 void CMBToolsDlg::enableall()
 {
 	GetDlgItem(IDC_BUTTON1)->EnableWindow(TRUE);
@@ -1180,6 +996,3 @@ void CMBToolsDlg::adb_acction(CString acction, int sleeptime)
 		XSleep(sleeptime);
 	}
 }
-
-
-
