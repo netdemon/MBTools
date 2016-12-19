@@ -589,7 +589,7 @@ int CMBToolsDlg::getVMlist() {
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 	TCHAR cmd[MAX_PATH] = _T("D:\\Program Files\\Microvirt\\MEmu\\adb.exe devices");
 	AfxMessageBox(cmd);
-	return;
+	return 5;
 
 	if (!CreateProcess(NULL, cmd, NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi))
 	{
@@ -754,13 +754,11 @@ void CMBToolsDlg::OnBnClickedButton6()
 		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,//打开只读文件
 		"图片文件(*.JPG)|*.jpg|所有文件 (*.*)|*.*||");//所有可以打开的文件类型
 
-
 	if (dlg.DoModal() == IDOK)
 	{
 
 		CString m_path = dlg.GetPathName(); //取出文件路径
 		UpdateData(FALSE);
-
 		CString acction = "-F fileToUpload=@"; // d:\\tmp\\";
 		CString cmd;
 		CString Msg;
@@ -770,7 +768,6 @@ void CMBToolsDlg::OnBnClickedButton6()
 		ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
 
 	}
-	*/
 
 	//列出D:\pic，一个一个POST
 	CFileFind file;
@@ -796,6 +793,7 @@ void CMBToolsDlg::OnBnClickedButton6()
 		}
 	}
 	file.Close();
+	*/
 }
 
 
