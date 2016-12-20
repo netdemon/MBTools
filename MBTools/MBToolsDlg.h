@@ -76,5 +76,6 @@ public:
 };
 
 CString GetClipBoardText(HWND hWnd);
-void ANSItoUTF8(CString &strAnsi);
-char * UnicodeToUTF8(const wchar_t* str);
+void ANSItoUTF8(char* &strAnsi);
+void UnicodeToUTF8(CString &str);
+void UnicodeToANSI(CString &str);

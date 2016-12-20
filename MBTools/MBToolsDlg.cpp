@@ -212,6 +212,10 @@ void CMBToolsDlg::OnEnChangeEdit1()
 void CMBToolsDlg::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	if (vmnum == 0) {
+		AfxMessageBox(_T("严重错误"));
+		exit(1);
+	}
 
 	SetDlgItemText(IDOK, _T("正在发图"));
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
@@ -242,13 +246,14 @@ void CMBToolsDlg::OnBnClickedOk()
 	Text.Replace(_T('\r'), _T(' '));
 	Text.Replace(_T('\n'), _T(' '));
 	Text.Replace(_T(" "), _T(""));
-	CString GBText = Text;
+	CString UTF8_Text = Text;
+	CString ANSI_Text = Text;
 	//ANSItoUTF8(Text);
-	CString UF8_Text;
-	UF8_Text = UnicodeToUTF8(Text);
+	UnicodeToANSI(ANSI_Text);
+	UnicodeToUTF8(UTF8_Text);
 
 	msgbox.SetWindowText(_T(""));
-	UpdateData(FALSE);
+	//UpdateData(FALSE);
 
 	/*
 	acction = " shell am force-stop com.tencent.mm";
@@ -303,7 +308,7 @@ void CMBToolsDlg::OnBnClickedOk()
 	CString post = _T("-d id=");
 	post += id;
 	post += _T(" --data-urlencode t=");
-	post += UF8_Text;
+	post += ANSI_Text;
 	cmd = post + _T("  ") + HOST + POST;
 	//AfxMessageBox(cmd);
 	ShellExecute(NULL, _T("open"), CURL, cmd, _T(""), SW_HIDE);
@@ -336,7 +341,7 @@ void CMBToolsDlg::OnBnClickedOk()
 	file.Close();
 
 	msgbox.ReplaceSel(_T("\r\n发送文本!"));
-	adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg ") + Text, 1000);
+	adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg ") + UTF8_Text, 1000);
 	msgbox.ReplaceSel(_T("\r\n点击发送!"));
 	adb_acction(_T(" shell input tap 321 50"), 2000);
 	msgbox.ReplaceSel(_T("\r\n操作完成!"));
@@ -613,29 +618,29 @@ int CMBToolsDlg::getVMlist() {
 	file_w.Open(_T("D:\\vmlist"), CFile::modeCreate | CFile::modeReadWrite);
 	file_w.WriteString(bf);
 	file_w.Close();
-	XSleep(200);
+XSleep(200);
 
 #ifdef DEBUG
-	file_r.Open(_T("D:\\1.txt"), CFile::modeRead);
+file_r.Open(_T("D:\\1.txt"), CFile::modeRead);
 #else
-	file_r.Open(_T("D:\\vmlist"), CFile::modeRead);
+file_r.Open(_T("D:\\vmlist"), CFile::modeRead);
 #endif
 
-	CString   strLine;
-	vmnum = 0;
-	vmlist.SetSize(0, 1);
-	while (file_r.ReadString(strLine))
+CString   strLine;
+vmnum = 0;
+vmlist.SetSize(0, 1);
+while (file_r.ReadString(strLine))
+{
+	CString bf = strLine.Left(15);
+	//AfxMessageBox(bf);
+	if (bf.Find(_T("127.0.0.1")) != -1)
 	{
-		CString bf = strLine.Left(15);
-		//AfxMessageBox(bf);
-		if (bf.Find(_T("127.0.0.1")) != -1)
-		{
-			vmlist.Add(bf);
-		}
+		vmlist.Add(bf);
 	}
-	file_r.Close();
-	vmnum = vmlist.GetSize();
-	return vmnum;
+}
+file_r.Close();
+vmnum = vmlist.GetSize();
+return vmnum;
 }
 
 
@@ -675,13 +680,8 @@ void CMBToolsDlg::OnBnClickedButton9()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//TEST
-	CString bf = ADB;
-	bf += _T("大家好");
-	ANSItoUTF8(bf);
+	CString bf = _T("如果指定的窗口是一个控件，则拷贝控件的文本。但是，GetWindowText可能无法获取外部应用程序中控件的文本，获取自绘的控件或者是外部的密码编辑框很有可能会失败。");
 	AfxMessageBox(bf);
-
-
-
 }
 
 
@@ -698,8 +698,8 @@ void CMBToolsDlg::OnBnClickedButton4()
 	GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
 }
 
-/*
-void ANSItoUTF8(CString &strAnsi)
+
+void ANSItoUTF8(char* &strAnsi)
 {
 	//获取转换为宽字节后需要的缓冲区大小，创建宽字节缓冲区，936为简体中文GB2312代码页
 	UINT nLen = MultiByteToWideChar(CP_ACP, NULL, strAnsi, -1, NULL, NULL);
@@ -716,21 +716,44 @@ void ANSItoUTF8(CString &strAnsi)
 	delete[]wszBuffer;
 	delete[]szBuffer;
 }
-*/
 
-void ANSItoUTF8(CString &strAnsi)
+void ANSItoUnicode(CString &str)
 {
-	//strAnsi = UnicodeToUTF8(strAnsi);
-	UINT nLen = WideCharToMultiByte(CP_UTF8, NULL, strAnsi, -1, NULL, NULL, NULL, NULL);
-	CHAR *szBuffer = new CHAR[nLen + 1];
-	nLen = WideCharToMultiByte(CP_UTF8, NULL, strAnsi, -1, szBuffer, nLen, NULL, NULL);
-	szBuffer[nLen] = 0;
-	strAnsi = szBuffer;
+	UINT nLen = MultiByteToWideChar(CP_ACP, NULL, (LPCSTR)(LPCWSTR)str, -1, NULL, NULL);
+	WCHAR *wszBuffer = new WCHAR[nLen + 1];
+	nLen = MultiByteToWideChar(CP_ACP, NULL, (LPCSTR)(LPCWSTR)str, -1, wszBuffer, nLen);
+	wszBuffer[nLen] = 0;
+	str = wszBuffer;
 	//内存清理
-	//delete[]wszBuffer;
+	delete[]wszBuffer;
+}
+
+
+void UnicodeToANSI(CString &str)
+{
+	UINT nLen = WideCharToMultiByte(CP_ACP, NULL, str, -1, NULL, NULL, NULL, NULL);
+	CHAR *szBuffer = new CHAR[nLen + 1];
+	nLen = WideCharToMultiByte(CP_ACP, NULL, str, -1, szBuffer, nLen, NULL, NULL);
+	szBuffer[nLen] = 0;
+	str = szBuffer;
+	//内存清理
 	delete[]szBuffer;
 }
 
+
+void UnicodeToUTF8(CString &str)
+{
+	UINT nLen = WideCharToMultiByte(CP_UTF8, NULL, str, -1, NULL, NULL, NULL, NULL);
+	CHAR *szBuffer = new CHAR[nLen + 1];
+	nLen = WideCharToMultiByte(CP_UTF8, NULL, str, -1, szBuffer, nLen, NULL, NULL);
+	szBuffer[nLen] = 0;
+	str = szBuffer;
+	//内存清理
+	delete[]szBuffer;
+}
+
+
+/*
 char * UnicodeToUTF8(const wchar_t* str)
 {
 	char* result;
@@ -741,7 +764,7 @@ char * UnicodeToUTF8(const wchar_t* str)
 	WideCharToMultiByte(CP_UTF8, 0, str, -1, result, textlen, NULL, NULL);
 	return result;
 }
-
+*/
 
 void CMBToolsDlg::OnBnClickedButton5()
 {
@@ -812,6 +835,10 @@ void CMBToolsDlg::OnBnClickedButton6()
 void CMBToolsDlg::OnBnClickedButton3()
 {
 	//副机发朋友圈
+	if (vmnum == 0) {
+		AfxMessageBox(_T("严重错误"));
+		exit(1);
+	}
 	disableall();
 	m_postunit.EnableWindow(FALSE);
 	msgbox.EnableWindow(FALSE);
@@ -892,7 +919,12 @@ void CMBToolsDlg::OnBnClickedButton3()
 				title += strLine;
 			}
 			file.Close();
-			ANSItoUTF8(title);
+			//USES_CONVERSION;
+			//char* utf8_title = T2A(title.GetBuffer(0));
+			//title.ReleaseBuffer();
+			//ANSItoUnicode(title);
+			AfxMessageBox(title);
+
 			adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg  ") + title, 1000);
 			msgbox.ReplaceSel(_T("\r\n点击发送!"));
 			adb_acction(_T(" shell input tap 321 50"), 2000);
@@ -935,7 +967,7 @@ void CMBToolsDlg::OnBnClickedButton11()
 	CString acction = _T(" shell am broadcast -a ADB_INPUT_TEXT --es msg ");
 
 	GetDlgItemText(IDC_EDIT1, Text);
-	ANSItoUTF8(Text);
+	UnicodeToUTF8(Text);
 	acction += Text;
 	for (int i = 0; i < vmnum; i++) {
 		cmd = _T(" -s ") + vmlist[i] + acction;
