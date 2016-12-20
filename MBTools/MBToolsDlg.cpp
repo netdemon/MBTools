@@ -243,7 +243,9 @@ void CMBToolsDlg::OnBnClickedOk()
 	Text.Replace(_T('\n'), _T(' '));
 	Text.Replace(_T(" "), _T(""));
 	CString GBText = Text;
-	ANSItoUTF8(Text);
+	//ANSItoUTF8(Text);
+	CString UF8_Text;
+	UF8_Text = UnicodeToUTF8(Text);
 
 	msgbox.SetWindowText(_T(""));
 	UpdateData(FALSE);
@@ -301,7 +303,7 @@ void CMBToolsDlg::OnBnClickedOk()
 	CString post = _T("-d id=");
 	post += id;
 	post += _T(" --data-urlencode t=");
-	post += GBText;
+	post += UF8_Text;
 	cmd = post + _T("  ") + HOST + POST;
 	//AfxMessageBox(cmd);
 	ShellExecute(NULL, _T("open"), CURL, cmd, _T(""), SW_HIDE);
@@ -673,6 +675,12 @@ void CMBToolsDlg::OnBnClickedButton9()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//TEST
+	CString bf = ADB;
+	bf += _T("大家好");
+	ANSItoUTF8(bf);
+	AfxMessageBox(bf);
+
+
 
 }
 
@@ -712,7 +720,15 @@ void ANSItoUTF8(CString &strAnsi)
 
 void ANSItoUTF8(CString &strAnsi)
 {
-	strAnsi = UnicodeToUTF8(strAnsi);
+	//strAnsi = UnicodeToUTF8(strAnsi);
+	UINT nLen = WideCharToMultiByte(CP_UTF8, NULL, strAnsi, -1, NULL, NULL, NULL, NULL);
+	CHAR *szBuffer = new CHAR[nLen + 1];
+	nLen = WideCharToMultiByte(CP_UTF8, NULL, strAnsi, -1, szBuffer, nLen, NULL, NULL);
+	szBuffer[nLen] = 0;
+	strAnsi = szBuffer;
+	//内存清理
+	//delete[]wszBuffer;
+	delete[]szBuffer;
 }
 
 char * UnicodeToUTF8(const wchar_t* str)
