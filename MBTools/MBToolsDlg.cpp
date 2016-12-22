@@ -685,7 +685,7 @@ void CMBToolsDlg::OnBnClickedButton9()
 	UnicodeToUTF8(bf);
 	UINT ln = bf.GetLength();
 	CFile file;
-	file.Open(_T("D:\\utf8text.txt"), CFile::modeWrite || CFile::modeCreate);
+	file.Open(_T("D:\\utf8text.txt"), CFile::modeCreate | CFile::modeWrite);
 	file.Write(bf,ln);
 	file.Close();
 	//AfxMessageBox(bf);
