@@ -912,19 +912,18 @@ void CMBToolsDlg::OnBnClickedButton3()
 			}
 			msgbox.ReplaceSel(_T("\r\n发送文本!"));
 			CString title;
-			file.Open(idpath + _T("\\title"), CFile::modeRead);
-			while (file.ReadString(strLine))
-			{
-				strLine.Trim();
-				title += strLine;
-			}
-			file.Close();
+			char ansi_title[4096] = { 0 };
+			CFile mfile;
+			mfile.Open(idpath + _T("\\title"), CFile::modeRead);
+			mfile.Read(ansi_title,4096);
+			mfile.Close();
 			//USES_CONVERSION;
 			//char* utf8_title = T2A(title.GetBuffer(0));
 			//title.ReleaseBuffer();
+			title = ansi_title;
 			//ANSItoUnicode(title);
 			AfxMessageBox(title);
-
+			UnicodeToUTF8(title);
 			adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg  ") + title, 1000);
 			msgbox.ReplaceSel(_T("\r\n点击发送!"));
 			adb_acction(_T(" shell input tap 321 50"), 2000);
