@@ -218,6 +218,7 @@ void CMBToolsDlg::OnBnClickedOk()
 
 	SetDlgItemText(IDOK, _T("正在发图"));
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
+	msgbox.EnableWindow(FALSE);
 	disableall();
 	if (edited == 0) {
 		return;
@@ -315,7 +316,6 @@ void CMBToolsDlg::OnBnClickedOk()
 	CFileFind file;
 	BOOL res = file.FindFile(_T("D:\\pic\\*.jpg"));//指定找mp3格式的文件
 											   //BOOL res = file.FindFile(指定的文夹路径+"*.mp3")||file.FindFile(指定的文夹路径+"*.m4a");
-											   //表示同时找mp3和m4a格式的文件
 	while (res)
 	{
 		res = file.FindNextFile();
@@ -328,12 +328,11 @@ void CMBToolsDlg::OnBnClickedOk()
 			acction += id;
 			acction += _T(" -F \"fileToUpload=@");
 			CString cmd = acction + m_file + _T("\" ") + HOST + POST;
-			CString Msg;
 			//AfxMessageBox(cmd);
 			ShellExecute(NULL, _T("open"), CURL, cmd, _T(""), SW_HIDE);
-			XSleep(500);
+			XSleep(1500);
 			//del file
-			////////////////////////////////////////////////////////
+			DeleteFile(m_file);
 		}
 	}
 	file.Close();
@@ -347,6 +346,7 @@ void CMBToolsDlg::OnBnClickedOk()
 	SetDlgItemText(IDOK, _T("确定"));
 	SetDlgItemText(IDC_BUTTON2, _T("主机发朋友圈"));
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
+	msgbox.EnableWindow(TRUE);
 	enableall();
 	//SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
 	//GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
@@ -524,20 +524,23 @@ void CMBToolsDlg::OnBnClickedButton2()
 		SetDlgItemText(IDC_BUTTON2, _T("等待编辑文字"));
 		GetDlgItem(IDC_BUTTON2)->EnableWindow(FALSE);
 		GetDlgItem(IDOK)->EnableWindow(FALSE);
+		msgbox.EnableWindow(FALSE);
 		edited = 0;
 
 		CString ClipBoardText;
 		HWND hWnd = GetSafeHwnd();
 		ClipBoardText = GetClipBoardText(hWnd);
 
+		CString path = _T("D:\\pic");
 		msgbox.SetWindowText(_T(""));
 		msgbox.ReplaceSel(_T("正在下图:"));
-		adb_acction(_T(" pull /sdcard/tencent/MicroMsg/WeiXin D:\\pic"), 500);
+		adb_acction(_T(" pull /sdcard/tencent/MicroMsg/WeiXin ") + path, 500);
 		msgbox.ReplaceSel(_T("\r\n正在上图:"));
-		adb_acction(_T(" push D:\\pic /sdcard/tencent/MicroMsg/WeiXin"), 500);
+		adb_acction(_T(" push ") + path + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 500);
 		msgbox.ReplaceSel(_T("\r\n刷新图库:"));
 		adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/"), 500);
 		msgbox.SetWindowText(ClipBoardText);
+		msgbox.EnableWindow(TRUE);
 		edited = 1;
 	}
 	else {
@@ -676,8 +679,17 @@ void CMBToolsDlg::OnBnClickedButton9()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//TEST
+	msgbox.SetWindowText(_T(""));
+	//CString ansi_file = _T("D:\\pic\\201612207046809\\title");
 	CString bf = _T("如果指定的窗口是一个控件，则拷贝控件的文本。但是，GetWindowText可能无法获取外部应用程序中控件的文本，获取自绘的控件或者是外部的密码编辑框很有可能会失败。");
-	AfxMessageBox(bf);
+	UnicodeToUTF8(bf);
+	UINT ln = bf.GetLength();
+	CFile file;
+	file.Open(_T("D:\\utf8text.txt"), CFile::modeWrite || CFile::modeCreate);
+	file.Write(bf,ln);
+	file.Close();
+	//AfxMessageBox(bf);
+	msgbox.ReplaceSel(bf);
 }
 
 
@@ -748,6 +760,17 @@ void UnicodeToUTF8(CString &str)
 	delete[]szBuffer;
 }
 
+
+void UTF8ToUnicode(CString &str)
+{
+	UINT nLen = MultiByteToWideChar(CP_UTF8, NULL, (LPCSTR)(LPCWSTR)str, -1, NULL, NULL);
+	WCHAR *wszBuffer = new WCHAR[nLen + 1];
+	nLen = MultiByteToWideChar(CP_UTF8, NULL, (LPCSTR)(LPCWSTR)str, -1, wszBuffer, nLen);
+	wszBuffer[nLen] = 0;
+	str = wszBuffer;
+	//内存清理
+	delete[]wszBuffer;
+}
 
 /*
 char * UnicodeToUTF8(const wchar_t* str)

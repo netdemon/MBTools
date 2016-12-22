@@ -77,5 +77,7 @@ public:
 
 CString GetClipBoardText(HWND hWnd);
 void ANSItoUTF8(char* &strAnsi);
+void ANSItoUnicode(CString &str);
 void UnicodeToUTF8(CString &str);
 void UnicodeToANSI(CString &str);
+void UTF8ToUnicode(CString &str);
