@@ -132,7 +132,6 @@ BOOL CMBToolsDlg::OnInitDialog()
 	vmNum = _T("当前模拟器数量：") + vmNum;
 	SetDlgItemText(IDC_STATIC, vmNum);
 	m_postunit.SetCurSel(2);
-
 	// END在此添加额外的初始化代码
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -251,7 +250,6 @@ void CMBToolsDlg::OnBnClickedOk()
 	//ANSItoUTF8(Text);
 	UnicodeToANSI(ANSI_Text);
 	UnicodeToUTF8(UTF8_Text);
-
 	msgbox.SetWindowText(_T(""));
 	//UpdateData(FALSE);
 
@@ -362,7 +360,6 @@ void CMBToolsDlg::OnBnClickedCancel()
 	// TODO: 在此添加控件通知处理程序代码
 	CDialog::OnCancel();
 }
-
 
 
 void CMBToolsDlg::OnBnClickedButton1()
@@ -517,7 +514,6 @@ void CMBToolsDlg::OnBnClickedButton1()
 		SetDlgItemText(IDC_BUTTON1, _T("打开导号文件"));
 		GetDlgItem(IDC_BUTTON1)->EnableWindow(TRUE);
 	}
-
 }
 
 
@@ -766,6 +762,7 @@ char * UnicodeToUTF8(const wchar_t* str)
 }
 */
 
+
 void CMBToolsDlg::OnBnClickedButton5()
 {
 	//删除朋友圈
@@ -892,9 +889,10 @@ void CMBToolsDlg::OnBnClickedButton3()
 				}
 			}
 			file.Close();
-			//这里
+			XSleep(3000);
 			//发送图片到模拟器
-			adb_acction(_T(" push ") + idpath + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 1000);
+			msgbox.ReplaceSel(_T("\r\n正在上图:"));
+			adb_acction(_T(" push ") + idpath + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 2000);
 			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/"), 2000);
 			msgbox.ReplaceSel(_T("\r\n发送指令:"));
 			adb_acction(_T(" shell /sdcard/MBTools/putpic"), 1000);
@@ -921,17 +919,15 @@ void CMBToolsDlg::OnBnClickedButton3()
 			//char* utf8_title = T2A(title.GetBuffer(0));
 			//title.ReleaseBuffer();
 			title = ansi_title;
-			//ANSItoUnicode(title);
-			AfxMessageBox(title);
+			//AfxMessageBox(title);
 			UnicodeToUTF8(title);
 			adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg  ") + title, 1000);
 			msgbox.ReplaceSel(_T("\r\n点击发送!"));
 			adb_acction(_T(" shell input tap 321 50"), 2000);
-			//清除模拟器图片For点击
 			msgbox.ReplaceSel(_T("\r\n清理图片!"));
 			adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 1000);
 			adb_acction(_T(" shell pm clear com.android.providers.media"), 1000);
-			//END这里
+			msgbox.ReplaceSel(_T("\r\n清理完成，等待下轮!"));
 			XSleep(5000);
 		}
 	}
