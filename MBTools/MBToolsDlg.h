@@ -4,6 +4,7 @@
 
 #pragma once
 #include "afxwin.h"
+#include <assert.h>
 
 
 // CMBToolsDlg ¶Ô»°¿ò
@@ -81,3 +82,6 @@ void ANSItoUnicode(CString &str);
 void UnicodeToUTF8(CString &str);
 void UnicodeToANSI(CString &str);
 void UTF8ToUnicode(CString &str);
+
+char * Uto8(const wchar_t* str);
+

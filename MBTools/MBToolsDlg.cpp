@@ -534,11 +534,11 @@ void CMBToolsDlg::OnBnClickedButton2()
 		CString path = _T("D:\\pic");
 		msgbox.SetWindowText(_T(""));
 		msgbox.ReplaceSel(_T("正在下图:"));
-		adb_acction(_T(" pull /sdcard/tencent/MicroMsg/WeiXin ") + path, 500);
+		adb_acction(_T(" pull /sdcard/tencent/MicroMsg/WeiXin ") + path, 1500);
 		msgbox.ReplaceSel(_T("\r\n正在上图:"));
-		adb_acction(_T(" push ") + path + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 500);
+		adb_acction(_T(" push ") + path + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 1500);
 		msgbox.ReplaceSel(_T("\r\n刷新图库:"));
-		adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/"), 500);
+		adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/"), 1500);
 		msgbox.SetWindowText(ClipBoardText);
 		msgbox.EnableWindow(TRUE);
 		edited = 1;
@@ -617,29 +617,29 @@ int CMBToolsDlg::getVMlist() {
 	file_w.Open(_T("D:\\vmlist"), CFile::modeCreate | CFile::modeReadWrite);
 	file_w.WriteString(bf);
 	file_w.Close();
-XSleep(200);
+	XSleep(200);
 
 #ifdef DEBUG
-file_r.Open(_T("D:\\1.txt"), CFile::modeRead);
+	file_r.Open(_T("D:\\1.txt"), CFile::modeRead);
 #else
-file_r.Open(_T("D:\\vmlist"), CFile::modeRead);
+	file_r.Open(_T("D:\\vmlist"), CFile::modeRead);
 #endif
 
-CString   strLine;
-vmnum = 0;
-vmlist.SetSize(0, 1);
-while (file_r.ReadString(strLine))
-{
-	CString bf = strLine.Left(15);
-	//AfxMessageBox(bf);
-	if (bf.Find(_T("127.0.0.1")) != -1)
+	CString   strLine;
+	vmnum = 0;
+	vmlist.SetSize(0, 1);
+	while (file_r.ReadString(strLine))
 	{
-		vmlist.Add(bf);
+		CString bf = strLine.Left(15);
+		//AfxMessageBox(bf);
+		if (bf.Find(_T("127.0.0.1")) != -1)
+		{
+			vmlist.Add(bf);
+		}
 	}
-}
-file_r.Close();
-vmnum = vmlist.GetSize();
-return vmnum;
+	file_r.Close();
+	vmnum = vmlist.GetSize();
+	return vmnum;
 }
 
 
@@ -682,14 +682,38 @@ void CMBToolsDlg::OnBnClickedButton9()
 	msgbox.SetWindowText(_T(""));
 	//CString ansi_file = _T("D:\\pic\\201612207046809\\title");
 	CString bf = _T("如果指定的窗口是一个控件，则拷贝控件的文本。但是，GetWindowText可能无法获取外部应用程序中控件的文本，获取自绘的控件或者是外部的密码编辑框很有可能会失败。");
-	UnicodeToUTF8(bf);
-	UINT ln = bf.GetLength();
-	CFile file;
-	file.Open(_T("D:\\utf8text.txt"), CFile::modeCreate | CFile::modeWrite);
-	file.Write(bf,ln);
-	file.Close();
-	//AfxMessageBox(bf);
-	msgbox.ReplaceSel(bf);
+	char* buf = NULL;
+	buf = Uto8(bf);
+	AfxMessageBox(bf);
+	msgbox.ReplaceSel(CString(buf));
+	FILE* fp;
+	fopen_s(&fp, "D:\\utf8text.txt", "wb,ccs=utf-8"); //,ccs=utf-8
+	fwrite(buf, strlen(buf), 1, fp);
+	fclose(fp);
+	//file.Open(_T("D:\\utf8text.txt"), CFile::modeCreate | CFile::modeWrite);
+
+	/*
+	//wchar_t szText[] = L"越玩越聪明全集-全世界聪明人都在玩的1001个全脑思维游戏.pdf";
+	CString msg;
+	wchar_t szText[] = L"如果指定的11";
+	char* buf = NULL;
+	int szTextLen = sizeof(wchar_t) * wcslen(szText);
+	int len = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)szText, -1, NULL, 0, NULL, NULL);
+	msg.Format(_T("%d"), len);
+	AfxMessageBox(msg);
+	buf = new char[len];
+	memset(buf, 0, sizeof(char) * len);
+	len = WideCharToMultiByte(CP_UTF8, 0, szText, -1, (LPSTR)buf, len, NULL, NULL);
+	msg.Format(_T("%d"), len);
+	AfxMessageBox(msg);
+	AfxMessageBox(CString(buf));
+	FILE* fp;
+	fopen_s(&fp, "D:\\utf8text.txt", "wb,ccs=UTF-8"); //,ccs=utf-8
+	fwrite(buf, len, 1, fp);
+	fclose(fp);
+	delete[] buf;
+	buf = NULL;
+	*/
 }
 
 
@@ -751,7 +775,7 @@ void UnicodeToANSI(CString &str)
 
 void UnicodeToUTF8(CString &str)
 {
-	UINT nLen = WideCharToMultiByte(CP_UTF8, NULL, str, -1, NULL, NULL, NULL, NULL);
+	int nLen = WideCharToMultiByte(CP_UTF8, NULL, str, -1, NULL, NULL, NULL, NULL);
 	CHAR *szBuffer = new CHAR[nLen + 1];
 	nLen = WideCharToMultiByte(CP_UTF8, NULL, str, -1, szBuffer, nLen, NULL, NULL);
 	szBuffer[nLen] = 0;
@@ -772,8 +796,8 @@ void UTF8ToUnicode(CString &str)
 	delete[]wszBuffer;
 }
 
-/*
-char * UnicodeToUTF8(const wchar_t* str)
+
+char * Uto8(const wchar_t* str)
 {
 	char* result;
 	int textlen;
@@ -783,7 +807,6 @@ char * UnicodeToUTF8(const wchar_t* str)
 	WideCharToMultiByte(CP_UTF8, 0, str, -1, result, textlen, NULL, NULL);
 	return result;
 }
-*/
 
 
 void CMBToolsDlg::OnBnClickedButton5()
@@ -917,6 +940,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 			msgbox.ReplaceSel(_T("\r\n正在上图:"));
 			adb_acction(_T(" push ") + idpath + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 2000);
 			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/"), 2000);
+			XSleep(5000);
 			msgbox.ReplaceSel(_T("\r\n发送指令:"));
 			adb_acction(_T(" shell /sdcard/MBTools/putpic"), 1000);
 			msgbox.ReplaceSel(_T("\r\n等待点击:"));
@@ -936,7 +960,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 			char ansi_title[4096] = { 0 };
 			CFile mfile;
 			mfile.Open(idpath + _T("\\title"), CFile::modeRead);
-			mfile.Read(ansi_title,4096);
+			mfile.Read(ansi_title, 4096);
 			mfile.Close();
 			//USES_CONVERSION;
 			//char* utf8_title = T2A(title.GetBuffer(0));
@@ -950,16 +974,17 @@ void CMBToolsDlg::OnBnClickedButton3()
 			msgbox.ReplaceSel(_T("\r\n清理图片!"));
 			adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 1000);
 			adb_acction(_T(" shell pm clear com.android.providers.media"), 1000);
+			adb_acction(_T(" shell input tap 40 400"), 2000);
 			msgbox.ReplaceSel(_T("\r\n清理完成，等待下轮!"));
-			XSleep(5000);
+			XSleep(30000);
+			}
 		}
-	}
 	last.Close();
 	msgbox.ReplaceSel(_T("\r\n操作完成!"));
 	enableall();
 	msgbox.EnableWindow(TRUE);
 	m_postunit.EnableWindow(TRUE);
-}
+	}
 
 void CMBToolsDlg::OnBnClickedButton7()
 {
@@ -985,8 +1010,10 @@ void CMBToolsDlg::OnBnClickedButton11()
 	CString acction = _T(" shell am broadcast -a ADB_INPUT_TEXT --es msg ");
 
 	GetDlgItemText(IDC_EDIT1, Text);
-	UnicodeToUTF8(Text);
-	acction += Text;
+	char* buf = NULL;
+	buf = Uto8(Text);
+	//UnicodeToUTF8(Text);
+	acction += buf;
 	for (int i = 0; i < vmnum; i++) {
 		cmd = _T(" -s ") + vmlist[i] + acction;
 		ShellExecute(NULL, _T("open"), ADB, cmd, _T(""), SW_HIDE);
