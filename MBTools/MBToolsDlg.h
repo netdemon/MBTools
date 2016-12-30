@@ -44,7 +44,6 @@ public:
 	afx_msg void OnBnClickedButton8();
 
 	afx_msg int getVMlist();
-	// int getpiclist();
 
 	CEdit msgbox;
 

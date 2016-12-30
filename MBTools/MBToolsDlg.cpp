@@ -1017,7 +1017,7 @@ void CMBToolsDlg::OnBnClickedButton11()
 	for (int i = 0; i < vmnum; i++) {
 		cmd = _T(" -s ") + vmlist[i] + acction;
 		ShellExecute(NULL, _T("open"), ADB, cmd, _T(""), SW_HIDE);
-		XSleep(250);
+		//XSleep(250);
 		//cmd = _T(" -s ") + vmlist[i] + _T(" shell input keyevent 66");
 		cmd = _T(" -s ") + vmlist[i] + _T(" shell input tap 330 410");
 		ShellExecute(NULL, _T("open"), ADB, cmd, _T(""), SW_HIDE);
