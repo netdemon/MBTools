@@ -331,8 +331,7 @@ void CMBToolsDlg::OnBnClickedOk()
 			//AfxMessageBox(cmd);
 			ShellExecute(NULL, _T("open"), CURL, cmd, _T(""), SW_HIDE);
 			XSleep(1500);
-			//del file
-			DeleteFile(m_file);
+			//DeleteFile(m_file);
 		}
 	}
 	file.Close();
@@ -534,6 +533,21 @@ void CMBToolsDlg::OnBnClickedButton2()
 		CString path = _T("D:\\pic");
 		msgbox.SetWindowText(_T(""));
 		msgbox.ReplaceSel(_T("正在下图:"));
+		//clean d:\\pic
+		CFileFind file;
+		BOOL res = file.FindFile(_T("D:\\pic\\*.jpg"));
+		//BOOL res = file.FindFile(指定的文夹路径+"*.mp3")||file.FindFile(指定的文夹路径+"*.m4a");
+		while (res)
+		{
+			res = file.FindNextFile();
+			//不遍历子目录
+			if (!file.IsDirectory() && !file.IsDots())
+			{
+				CString m_file = file.GetFilePath();
+				DeleteFile(m_file);
+			}
+		}
+		file.Close();
 		adb_acction(_T(" pull /sdcard/tencent/MicroMsg/WeiXin ") + path, 1500);
 		msgbox.ReplaceSel(_T("\r\n正在上图:"));
 		adb_acction(_T(" push ") + path + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 1500);
@@ -567,6 +581,7 @@ void CMBToolsDlg::OnBnClickedButton8()
 	msgbox.SetWindowText(_T(""));
 	msgbox.ReplaceSel(_T("正在清理:"));
 	adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 1000);
+	adb_acction(_T(" shell rm \"/sdcard/vxt/*\""), 1000);
 	adb_acction(_T(" shell pm clear com.android.providers.media"), 1000);
 	msgbox.ReplaceSel(_T("\r\n清理成功!"));
 	GetDlgItem(IDC_BUTTON8)->EnableWindow(TRUE);
@@ -883,10 +898,15 @@ void CMBToolsDlg::OnBnClickedButton3()
 		exit(1);
 	}
 	disableall();
+
+	msgbox.ReplaceSel(_T("清理图片!"));
+	//adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 1000);
+	//adb_acction(_T(" shell pm clear com.android.providers.media"), 1000);
+
 	m_postunit.EnableWindow(FALSE);
 	msgbox.EnableWindow(FALSE);
 	msgbox.SetWindowText(_T(""));
-	msgbox.ReplaceSel(_T("正在下图:"));
+	msgbox.ReplaceSel(_T("\r\n正在下图:"));
 	//int unitnum = m_postunit.GetCurSel();
 	//unitnum += 1;
 
@@ -993,6 +1013,7 @@ void CMBToolsDlg::OnBnClickedButton7()
 	msgbox.SetWindowText(_T(""));
 	msgbox.ReplaceSel(_T("正在进行:"));
 	adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 500);
+	adb_acction(_T(" shell rm \"/sdcard/vxt/*\""), 500);
 	adb_acction(_T(" shell pm clear com.android.providers.media"), 500);
 	adb_acction(_T(" push D:\\PutPicSH /sdcard/MBTools/putpic"), 500);
 	adb_acction(_T(" push D:\\AddFirSH /sdcard/MBTools/addfir"), 500);
