@@ -82,6 +82,7 @@ BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON12, &CMBToolsDlg::OnBnClickedButton12)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &CMBToolsDlg::OnCbnSelchangeCombo1)
 	ON_CBN_SELCHANGE(IDC_COMBO2, &CMBToolsDlg::OnCbnSelchangeCombo2)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -132,6 +133,7 @@ BOOL CMBToolsDlg::OnInitDialog()
 	vmNum = _T("当前模拟器数量：") + vmNum;
 	SetDlgItemText(IDC_STATIC, vmNum);
 	m_postunit.SetCurSel(2);
+
 	// END在此添加额外的初始化代码
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -341,6 +343,8 @@ void CMBToolsDlg::OnBnClickedOk()
 	msgbox.ReplaceSel(_T("\r\n点击发送!"));
 	adb_acction(_T(" shell input tap 321 50"), 2000);
 	msgbox.ReplaceSel(_T("\r\n操作完成!"));
+	adb_acction(_T(" shell input tap 24 48"), 2000);
+	adb_acction(_T(" shell input tap 40 400"), 2000);
 
 	SetDlgItemText(IDOK, _T("确定"));
 	SetDlgItemText(IDC_BUTTON2, _T("主机发朋友圈"));
@@ -357,6 +361,8 @@ void CMBToolsDlg::OnBnClickedOk()
 void CMBToolsDlg::OnBnClickedCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	KillTimer(TIMERAF);
+	KillTimer(TIMERPP);
 	CDialog::OnCancel();
 }
 
@@ -552,7 +558,7 @@ void CMBToolsDlg::OnBnClickedButton2()
 		msgbox.ReplaceSel(_T("\r\n正在上图:"));
 		adb_acction(_T(" push ") + path + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 1500);
 		msgbox.ReplaceSel(_T("\r\n刷新图库:"));
-		adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/"), 1500);
+		adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/tencent/MicroMsg/WeiXin/"), 1500);
 		msgbox.SetWindowText(ClipBoardText);
 		msgbox.EnableWindow(TRUE);
 		edited = 1;
@@ -694,56 +700,40 @@ void CMBToolsDlg::OnBnClickedButton9()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//TEST
-	msgbox.SetWindowText(_T(""));
-	//CString ansi_file = _T("D:\\pic\\201612207046809\\title");
-	CString bf = _T("如果指定的窗口是一个控件，则拷贝控件的文本。但是，GetWindowText可能无法获取外部应用程序中控件的文本，获取自绘的控件或者是外部的密码编辑框很有可能会失败。");
-	char* buf = NULL;
-	buf = Uto8(bf);
-	AfxMessageBox(bf);
-	msgbox.ReplaceSel(CString(buf));
-	FILE* fp;
-	fopen_s(&fp, "D:\\utf8text.txt", "wb,ccs=utf-8"); //,ccs=utf-8
-	fwrite(buf, strlen(buf), 1, fp);
-	fclose(fp);
-	//file.Open(_T("D:\\utf8text.txt"), CFile::modeCreate | CFile::modeWrite);
-
-	/*
-	//wchar_t szText[] = L"越玩越聪明全集-全世界聪明人都在玩的1001个全脑思维游戏.pdf";
-	CString msg;
-	wchar_t szText[] = L"如果指定的11";
-	char* buf = NULL;
-	int szTextLen = sizeof(wchar_t) * wcslen(szText);
-	int len = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)szText, -1, NULL, 0, NULL, NULL);
-	msg.Format(_T("%d"), len);
-	AfxMessageBox(msg);
-	buf = new char[len];
-	memset(buf, 0, sizeof(char) * len);
-	len = WideCharToMultiByte(CP_UTF8, 0, szText, -1, (LPSTR)buf, len, NULL, NULL);
-	msg.Format(_T("%d"), len);
-	AfxMessageBox(msg);
-	AfxMessageBox(CString(buf));
-	FILE* fp;
-	fopen_s(&fp, "D:\\utf8text.txt", "wb,ccs=UTF-8"); //,ccs=utf-8
-	fwrite(buf, len, 1, fp);
-	fclose(fp);
-	delete[] buf;
-	buf = NULL;
-	*/
+	//SetTimer(TIMERAF, AFTIME, NULL);//启动定时器
+	//SetTimer(TIMERPP, PPTIME, NULL);//启动定时器
 }
+
+
 
 
 void CMBToolsDlg::OnBnClickedButton4()
 {
 	//自动加人
-	SetDlgItemText(IDC_BUTTON4, _T("正在进行加人"));
-	GetDlgItem(IDC_BUTTON4)->EnableWindow(FALSE);
-	msgbox.SetWindowText(_T(""));
-	msgbox.ReplaceSel(_T("正在加人:"));
-	adb_acction(_T(" shell /sdcard/MBTools/addfir"), 1000);
-	msgbox.ReplaceSel(_T("\r\n操作完成!"));
-	SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
-	GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
+	CString btText;
+	GetDlgItem(IDC_BUTTON4)->GetWindowText(btText);
+	if (btText == _T("自动添加好友")) {
+		SetDlgItemText(IDC_BUTTON4, _T("正在进行加人"));
+		GetDlgItem(IDC_BUTTON4)->EnableWindow(FALSE);
+		msgbox.SetWindowText(_T(""));
+		msgbox.ReplaceSel(_T("正在加人:"));
+		adb_acction(_T(" shell /sdcard/MBTools/addfir"), 1000);
+		msgbox.ReplaceSel(_T("\r\n操作完成! 后台自动加人已启动"));
+		SetDlgItemText(IDC_BUTTON4, _T("停止自动添加"));
+		GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
+		//SetTimeOn;
+		SetTimer(TIMERAF, AFTIME, NULL);//启动定时器
+	}
+	else {
+		//SetTimeOff；
+		KillTimer(TIMERAF);
+		SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
+	}
+
 }
+
+
+
 
 
 void ANSItoUTF8(char* &strAnsi)
@@ -959,7 +949,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 			//发送图片到模拟器
 			msgbox.ReplaceSel(_T("\r\n正在上图:"));
 			adb_acction(_T(" push ") + idpath + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 2000);
-			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/"), 2000);
+			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/tencent/MicroMsg/WeiXin/"), 2000);
 			XSleep(5000);
 			msgbox.ReplaceSel(_T("\r\n发送指令:"));
 			adb_acction(_T(" shell /sdcard/MBTools/putpic"), 1000);
@@ -994,17 +984,18 @@ void CMBToolsDlg::OnBnClickedButton3()
 			msgbox.ReplaceSel(_T("\r\n清理图片!"));
 			adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 1000);
 			adb_acction(_T(" shell pm clear com.android.providers.media"), 1000);
+			adb_acction(_T(" shell input tap 24 48"), 2000);
 			adb_acction(_T(" shell input tap 40 400"), 2000);
 			msgbox.ReplaceSel(_T("\r\n清理完成，等待下轮!"));
 			XSleep(30000);
-			}
 		}
+	}
 	last.Close();
 	msgbox.ReplaceSel(_T("\r\n操作完成!"));
 	enableall();
 	msgbox.EnableWindow(TRUE);
 	m_postunit.EnableWindow(TRUE);
-	}
+}
 
 void CMBToolsDlg::OnBnClickedButton7()
 {
@@ -1120,4 +1111,36 @@ void CMBToolsDlg::adb_acction(CString acction, int sleeptime)
 		ShellExecute(NULL, _T("open"), ADB, cmd, _T(""), SW_HIDE);
 		XSleep(sleeptime);
 	}
+}
+
+
+void CMBToolsDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	switch (nIDEvent)
+	{
+	case TIMERAF:
+	{
+		//AfxMessageBox(_T("定时器加友!"));
+		SetDlgItemText(IDC_BUTTON4, _T("正在进行加人"));
+		GetDlgItem(IDC_BUTTON4)->EnableWindow(FALSE);
+		msgbox.SetWindowText(_T(""));
+		msgbox.ReplaceSel(_T("正在加人:"));
+		adb_acction(_T(" shell /sdcard/MBTools/addfir"), 1000);
+		msgbox.ReplaceSel(_T("\r\n操作完成!"));
+		SetDlgItemText(IDC_BUTTON4, _T("停止自动添加"));
+		GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
+		break;
+	}
+	case TIMERPP:
+	{
+		AfxMessageBox(_T("定时器发图!"));
+		break;
+	}
+	default:
+		break;
+	}
+
+	CDialog::OnTimer(nIDEvent);
 }

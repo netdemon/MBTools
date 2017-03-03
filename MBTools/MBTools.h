@@ -16,6 +16,12 @@
 #define ADB		_T("D:\\Program Files\\Microvirt\\MEmu\\adb.exe")
 #define CURL	_T("D:\\curl.exe")
 #define MYPATH	_T("D:\\MBTools\\")
+#define TIMERAF	1
+#define TIMERPP 2
+#define AFTIME	120*60000
+#define PPTIME	30000
+
+
 
 // CMBToolsApp: 
 // 有关此类的实现，请参阅 MBTools.cpp

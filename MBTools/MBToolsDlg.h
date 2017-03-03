@@ -73,6 +73,7 @@ public:
 	void disableall();
 	void enableall();
 	void adb_acction(CString acction, int sleeptime);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 CString GetClipBoardText(HWND hWnd);
