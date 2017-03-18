@@ -651,9 +651,9 @@ int CMBToolsDlg::getVMlist() {
 	vmlist.SetSize(0, 1);
 	while (file_r.ReadString(strLine))
 	{
-		CString bf = strLine.Left(15);
+		CString bf = strLine.Left(14);
 		//AfxMessageBox(bf);
-		if (bf.Find(_T("127.0.0.1")) != -1)
+		if (bf.Find(_T("2011")) != -1)
 		{
 			vmlist.Add(bf);
 		}
