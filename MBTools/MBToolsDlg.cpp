@@ -507,7 +507,8 @@ void CMBToolsDlg::OnBnClickedButton1()
 		for (int i = 0; i < vmnum; i++) {
 			Msg.Format(_T(" %d"), i + 1);
 			msgbox.ReplaceSel(Msg);
-			acction = _T(" shell am start -t \"text/x-vcard\" -d \"file:///sdcard/contacts.vcf\" -a android.intent.action.VIEW com.android.contacts");
+			//acction = _T(" shell am start -t \"text/x-vcard\" -d \"file:///sdcard/contacts.vcf\" -a android.intent.action.VIEW com.android.contacts");
+			acction = _T(" shell am start -t \"text/x-vcard\" -d \"file:///sdcard/contacts.vcf\" -a android.intent.action.VIEW");
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);
 			ShellExecute(NULL, _T("open"), ADB, cmd, _T(""), SW_HIDE);
