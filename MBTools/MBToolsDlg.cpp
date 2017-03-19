@@ -718,7 +718,7 @@ void CMBToolsDlg::OnBnClickedButton4()
 		GetDlgItem(IDC_BUTTON4)->EnableWindow(FALSE);
 		msgbox.SetWindowText(_T(""));
 		msgbox.ReplaceSel(_T("正在加人:"));
-		adb_acction(_T(" shell /sdcard/MBTools/addfir"), 1000);
+		adb_acction(_T(" shell sh /sdcard/MBTools/addfir"), 1000);
 		msgbox.ReplaceSel(_T("\r\n操作完成! 后台自动加人已启动"));
 		SetDlgItemText(IDC_BUTTON4, _T("停止自动添加"));
 		GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
@@ -821,7 +821,7 @@ void CMBToolsDlg::OnBnClickedButton5()
 	GetDlgItem(IDC_BUTTON5)->EnableWindow(FALSE);
 	msgbox.SetWindowText(_T(""));
 	msgbox.ReplaceSel(_T("正在删除:"));
-	adb_acction(_T(" shell /sdcard/MBTools/delpic"), 1000);
+	adb_acction(_T(" shell sh /sdcard/MBTools/delpic"), 1000);
 	msgbox.ReplaceSel(_T("\r\n删除成功!"));
 	GetDlgItem(IDC_BUTTON5)->EnableWindow(TRUE);
 }
@@ -953,7 +953,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/tencent/MicroMsg/WeiXin/"), 2000);
 			XSleep(5000);
 			msgbox.ReplaceSel(_T("\r\n发送指令:"));
-			adb_acction(_T(" shell /sdcard/MBTools/putpic"), 1000);
+			adb_acction(_T(" shell sh /sdcard/MBTools/putpic"), 1000);
 			msgbox.ReplaceSel(_T("\r\n等待点击:"));
 #ifdef DEBUG
 			int stime = 4000 / vmnum;
@@ -1128,7 +1128,7 @@ void CMBToolsDlg::OnTimer(UINT_PTR nIDEvent)
 		GetDlgItem(IDC_BUTTON4)->EnableWindow(FALSE);
 		msgbox.SetWindowText(_T(""));
 		msgbox.ReplaceSel(_T("正在加人:"));
-		adb_acction(_T(" shell /sdcard/MBTools/addfir"), 1000);
+		adb_acction(_T(" shell sh /sdcard/MBTools/addfir"), 1000);
 		msgbox.ReplaceSel(_T("\r\n操作完成!"));
 		SetDlgItemText(IDC_BUTTON4, _T("停止自动添加"));
 		GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
