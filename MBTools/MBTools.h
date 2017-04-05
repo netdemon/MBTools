@@ -13,13 +13,15 @@
 #define HOST	_T("http://mbt.20cn.com")
 #define POST	_T("/cgi-bin/u.pl")
 #define DOWN	_T("/cgi-bin/d.pl")
-#define ADB		_T("D:\\Program Files\\Microvirt\\MEmu\\adb.exe")
+#define ADB		_T("D:\\ADB\\adb.exe")
 #define CURL	_T("D:\\curl.exe")
 #define MYPATH	_T("D:\\MBTools\\")
 #define TIMERAF	1
 #define TIMERPP 2
-#define AFTIME	120*60000
-#define PPTIME	30000
+#define TIMERRR 3
+#define AFTIME	60*60000
+#define PPTIME	40*60000
+#define RRTIME	28*60000
 
 
 

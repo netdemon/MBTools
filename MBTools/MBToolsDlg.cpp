@@ -83,6 +83,7 @@ BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &CMBToolsDlg::OnCbnSelchangeCombo1)
 	ON_CBN_SELCHANGE(IDC_COMBO2, &CMBToolsDlg::OnCbnSelchangeCombo2)
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON13, &CMBToolsDlg::OnBnClickedButton13)
 END_MESSAGE_MAP()
 
 
@@ -123,16 +124,17 @@ BOOL CMBToolsDlg::OnInitDialog()
 	SetDlgItemText(IDC_BUTTON3, _T("副机发朋友圈"));
 	SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
 	SetDlgItemText(IDC_BUTTON5, _T("删除朋友圈一"));
-	SetDlgItemText(IDC_BUTTON6, _T("TESTPOST"));
+	SetDlgItemText(IDC_BUTTON6, _T("安装支持程序"));
 	SetDlgItemText(IDC_BUTTON7, _T("初始化模拟器"));
 	SetDlgItemText(IDC_BUTTON8, _T("清除所有图片"));
-	SetDlgItemText(IDC_BUTTON9, _T("TEST"));
+	SetDlgItemText(IDC_BUTTON9, _T("清除联系人"));
 
 	vmnum = getVMlist();
 	vmNum.Format(_T("%d"), vmnum);
 	vmNum = _T("当前模拟器数量：") + vmNum;
 	SetDlgItemText(IDC_STATIC, vmNum);
-	m_postunit.SetCurSel(2);
+	m_postunit.SetCurSel(0);
+	SetTimer(TIMERRR, RRTIME, NULL);//启动刷新定时器
 
 	// END在此添加额外的初始化代码
 
@@ -279,6 +281,7 @@ void CMBToolsDlg::OnBnClickedOk()
 	}
 	*/
 
+	/*  2017
 	msgbox.ReplaceSel(_T("发送指令:"));
 	adb_acction(_T(" shell /sdcard/MBTools/putpic"), 1000);
 	msgbox.ReplaceSel(_T("\r\n等待点击:"));
@@ -293,6 +296,7 @@ void CMBToolsDlg::OnBnClickedOk()
 		msgbox.ReplaceSel(Msg);
 		XSleep(stime);
 	}
+	*/
 	msgbox.ReplaceSel(_T("\r\n服务同步:"));
 
 	//删除文件
@@ -338,6 +342,7 @@ void CMBToolsDlg::OnBnClickedOk()
 	}
 	file.Close();
 
+	/*  2017
 	msgbox.ReplaceSel(_T("\r\n发送文本!"));
 	adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg ") + UTF8_Text, 1000);
 	msgbox.ReplaceSel(_T("\r\n点击发送!"));
@@ -345,7 +350,9 @@ void CMBToolsDlg::OnBnClickedOk()
 	msgbox.ReplaceSel(_T("\r\n操作完成!"));
 	adb_acction(_T(" shell input tap 24 48"), 2000);
 	adb_acction(_T(" shell input tap 40 400"), 2000);
+	*/
 
+	msgbox.ReplaceSel(_T("\r\n操作完成!"));
 	SetDlgItemText(IDOK, _T("确定"));
 	SetDlgItemText(IDC_BUTTON2, _T("主机发朋友圈"));
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
@@ -363,6 +370,7 @@ void CMBToolsDlg::OnBnClickedCancel()
 	// TODO: 在此添加控件通知处理程序代码
 	KillTimer(TIMERAF);
 	KillTimer(TIMERPP);
+	KillTimer(TIMERRR);
 	CDialog::OnCancel();
 }
 
@@ -482,8 +490,8 @@ void CMBToolsDlg::OnBnClickedButton1()
 			msgbox.ReplaceSel(Msg);
 			cmd = a + vmlist[i] + acction;
 			//AfxMessageBox(cmd);  //DEL
-			ShellExecute(NULL, _T("open"), ADB, cmd, _T(""), SW_HIDE);
-			XSleep(500);
+			//ShellExecute(NULL, _T("open"), ADB, cmd, _T(""), SW_HIDE);
+			//XSleep(500);
 		}
 
 		//复制号码
@@ -555,11 +563,11 @@ void CMBToolsDlg::OnBnClickedButton2()
 			}
 		}
 		file.Close();
-		adb_acction(_T(" pull /sdcard/tencent/MicroMsg/WeiXin ") + path, 1500);
-		msgbox.ReplaceSel(_T("\r\n正在上图:"));
-		adb_acction(_T(" push ") + path + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 1500);
-		msgbox.ReplaceSel(_T("\r\n刷新图库:"));
-		adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/tencent/MicroMsg/WeiXin/"), 1500);
+		adb_acction(_T(" pull /sdcard/tencent/MicroMsg/WeiXin ") + path, 500);
+		//msgbox.ReplaceSel(_T("\r\n正在上图:"));
+		//adb_acction(_T(" push ") + path + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 1500);
+		//msgbox.ReplaceSel(_T("\r\n刷新图库:"));
+		//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/tencent/MicroMsg/WeiXin/"), 1500);
 		msgbox.SetWindowText(ClipBoardText);
 		msgbox.EnableWindow(TRUE);
 		edited = 1;
@@ -614,7 +622,8 @@ int CMBToolsDlg::getVMlist() {
 	si.hStdOutput = hWrite;           //把创建进程的标准输出重定向到管道输入
 	si.wShowWindow = SW_HIDE;
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-	TCHAR cmd[MAX_PATH] = _T("D:\\Program Files\\Microvirt\\MEmu\\adb.exe devices");
+	TCHAR cmd[MAX_PATH] = _T("D:\\ADB\\adb.exe devices");
+
 	if (!CreateProcess(NULL, cmd, NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi))
 	{
 		CloseHandle(hWrite);
@@ -652,12 +661,27 @@ int CMBToolsDlg::getVMlist() {
 	vmlist.SetSize(0, 1);
 	while (file_r.ReadString(strLine))
 	{
-		CString bf = strLine.Left(14);
+		CString bf = strLine.Left(15);
 		//AfxMessageBox(bf);
-		if (bf.Find(_T("2011")) != -1)
+
+		if (bf.Find(_T("127")) != -1)
 		{
 			vmlist.Add(bf);
 		}
+/* hand
+		BOOL bIsDigit = TRUE;
+		for (int i = 0; i < 14; i++)
+		{
+			if (0 == isdigit(bf.GetAt(i)))
+			{
+				bIsDigit = FALSE;
+				break;// 退出
+			}
+		}
+		if (bIsDigit) {
+			vmlist.Add(bf);
+		}
+		*/
 	}
 	file_r.Close();
 	vmnum = vmlist.GetSize();
@@ -700,12 +724,16 @@ CString GetClipBoardText(HWND hWnd)
 void CMBToolsDlg::OnBnClickedButton9()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	//TEST
+	//清除联系人
+	GetDlgItem(IDC_BUTTON9)->EnableWindow(FALSE);
+	msgbox.SetWindowText(_T(""));
+	msgbox.ReplaceSel(_T("正在清理:"));
+	adb_acction(_T(" shell pm clear com.android.providers.contacts"), 200);
+	msgbox.ReplaceSel(_T("\r\n清理成功!"));
+	GetDlgItem(IDC_BUTTON9)->EnableWindow(TRUE);
 	//SetTimer(TIMERAF, AFTIME, NULL);//启动定时器
 	//SetTimer(TIMERPP, PPTIME, NULL);//启动定时器
 }
-
-
 
 
 void CMBToolsDlg::OnBnClickedButton4()
@@ -732,9 +760,6 @@ void CMBToolsDlg::OnBnClickedButton4()
 	}
 
 }
-
-
-
 
 
 void ANSItoUTF8(char* &strAnsi)
@@ -821,7 +846,7 @@ void CMBToolsDlg::OnBnClickedButton5()
 	GetDlgItem(IDC_BUTTON5)->EnableWindow(FALSE);
 	msgbox.SetWindowText(_T(""));
 	msgbox.ReplaceSel(_T("正在删除:"));
-	adb_acction(_T(" shell sh /sdcard/MBTools/delpic"), 1000);
+	adb_acction(_T(" shell sh /sdcard/MBTools/delpic"), 100);
 	msgbox.ReplaceSel(_T("\r\n删除成功!"));
 	GetDlgItem(IDC_BUTTON5)->EnableWindow(TRUE);
 }
@@ -830,54 +855,9 @@ void CMBToolsDlg::OnBnClickedButton5()
 void CMBToolsDlg::OnBnClickedButton6()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	/*
-	CFile file_r;
-	CFileDialog dlg(TRUE,//TRUE是创建打开文件对话框，FALSE则创建的是保存文件对话框
-		".txt",//默认的打开文件的类型
-		NULL,//默认打开的文件名
-		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,//打开只读文件
-		"图片文件(*.JPG)|*.jpg|所有文件 (*.*)|*.*||");//所有可以打开的文件类型
-
-	if (dlg.DoModal() == IDOK)
-	{
-
-		CString m_path = dlg.GetPathName(); //取出文件路径
-		UpdateData(FALSE);
-		CString acction = "-F fileToUpload=@"; // d:\\tmp\\";
-		CString cmd;
-		CString Msg;
-		cmd = acction + m_path + " " + HOST + POST;
-		AfxMessageBox(cmd);
-		XSleep(100);
-		ShellExecute(NULL, "open", CURL, cmd, "", SW_HIDE);
-
-	}
-
-	//列出D:\pic，一个一个POST
-	CFileFind file;
-	BOOL res = file.FindFile(_T("D:\\pic\\*.jpg"));//指定找mp3格式的文件
-											 //BOOL res = file.FindFile(指定的文夹路径+"*.mp3")||file.FindFile(指定的文夹路径+"*.m4a");
-											 //表示同时找mp3和m4a格式的文件
-	while (res)
-	{
-		res = file.FindNextFile();
-		//不遍历子目录
-		if (!file.IsDirectory() && !file.IsDots())
-		{
-			CString m_file = file.GetFilePath();
-			//upload file
-			CString acction = _T("-F \"fileToUpload=@"); // d:\\tmp\\";
-			CString cmd;
-			CString Msg;
-			cmd = acction + m_file + _T("\" ") + HOST + POST;
-			AfxMessageBox(cmd);
-			XSleep(100);
-			ShellExecute(NULL, _T("open"), CURL, cmd, _T(""), SW_HIDE);
-
-		}
-	}
-	file.Close();
-	*/
+	//adb_acction(_T(" shell svc power stayon usb"), 200);
+	adb_acction(_T(" install d:\\keyboardservice-debug.apk"), 200);
+	adb_acction(_T(" install d:\\weixin656android1020.apk"), 200);
 }
 
 
@@ -890,9 +870,8 @@ void CMBToolsDlg::OnBnClickedButton3()
 	}
 	disableall();
 
-	msgbox.ReplaceSel(_T("清理图片!"));
-	//adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 1000);
-	//adb_acction(_T(" shell pm clear com.android.providers.media"), 1000);
+	//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 200);
+	adb_acction(_T(" shell ime set com.android.adbkeyboard/.AdbIME"), 100);
 
 	m_postunit.EnableWindow(FALSE);
 	msgbox.EnableWindow(FALSE);
@@ -946,19 +925,24 @@ void CMBToolsDlg::OnBnClickedButton3()
 				}
 			}
 			file.Close();
+			msgbox.ReplaceSel(_T("清理图片!"));
+			adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 100);
+			adb_acction(_T(" shell pm clear com.android.providers.media"), 100);
 			XSleep(3000);
 			//发送图片到模拟器
 			msgbox.ReplaceSel(_T("\r\n正在上图:"));
-			adb_acction(_T(" push ") + idpath + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 2000);
-			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/tencent/MicroMsg/WeiXin/"), 2000);
-			XSleep(5000);
+			adb_acction(_T(" push ") + idpath + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 200); //1000
+			XSleep(2000); //
+			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 1000); //2000
+			//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/tencent/MicroMsg/WeiXin/"), 2000);
+			XSleep(10000); //
 			msgbox.ReplaceSel(_T("\r\n发送指令:"));
-			adb_acction(_T(" shell sh /sdcard/MBTools/putpic"), 1000);
-			msgbox.ReplaceSel(_T("\r\n等待点击:"));
+			adb_acction(_T(" shell sh /sdcard/MBTools/putpic"), 100); //
+			msgbox.ReplaceSel(_T("\r\n等待文字:"));
 #ifdef DEBUG
 			int stime = 4000 / vmnum;
 #else
-			int stime = 40000 / vmnum;
+			int stime = 40000 / vmnum;  //4000
 #endif
 			CString Msg;
 			for (int i = 0; i < vmnum; i++) {
@@ -979,20 +963,24 @@ void CMBToolsDlg::OnBnClickedButton3()
 			title = ansi_title;
 			//AfxMessageBox(title);
 			UnicodeToUTF8(title);
-			adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg  ") + title, 1000);
+			adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg  ") + title, 100);
+			XSleep(1000);
 			msgbox.ReplaceSel(_T("\r\n点击发送!"));
-			adb_acction(_T(" shell input tap 321 50"), 2000);
-			msgbox.ReplaceSel(_T("\r\n清理图片!"));
-			adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 1000);
-			adb_acction(_T(" shell pm clear com.android.providers.media"), 1000);
-			adb_acction(_T(" shell input tap 24 48"), 2000);
-			adb_acction(_T(" shell input tap 40 400"), 2000);
-			msgbox.ReplaceSel(_T("\r\n清理完成，等待下轮!"));
-			XSleep(30000);
+			adb_acction(_T(" shell input tap 420 64"), 200); //2000
+			XSleep(2000);
+			//msgbox.ReplaceSel(_T("\r\n清理图片!"));
+			//adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 1000);
+			//adb_acction(_T(" shell pm clear com.android.providers.media"), 1000);
+			adb_acction(_T(" shell input tap 32 64"), 100); //微信返回
+			XSleep(1000);
+			adb_acction(_T(" shell input tap 70 820"), 100); //微信界面
+			msgbox.ReplaceSel(_T("\r\n发送完成，等待下轮!"));
+			//XSleep(15000);
 		}
 	}
 	last.Close();
 	msgbox.ReplaceSel(_T("\r\n操作完成!"));
+	adb_acction(_T(" shell ime set com.aliyun.mobile.ime/.AImeService"), 100);
 	enableall();
 	msgbox.EnableWindow(TRUE);
 	m_postunit.EnableWindow(TRUE);
@@ -1004,17 +992,17 @@ void CMBToolsDlg::OnBnClickedButton7()
 	disableall();
 	msgbox.SetWindowText(_T(""));
 	msgbox.ReplaceSel(_T("正在进行:"));
-	adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 500);
-	adb_acction(_T(" shell rm \"/sdcard/vxt/*\""), 500);
-	adb_acction(_T(" shell pm clear com.android.providers.media"), 500);
-	adb_acction(_T(" push D:\\PutPicSH /sdcard/MBTools/putpic"), 500);
-	adb_acction(_T(" push D:\\AddFirSH /sdcard/MBTools/addfir"), 500);
-	adb_acction(_T(" push D:\\DelPicSH /sdcard/MBTools/delpic"), 500);
+	adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 100);
+	//adb_acction(_T(" shell rm \"/sdcard/vxt/*\""), 500);
+	//adb_acction(_T(" shell pm clear com.android.providers.media"), 500);
+	adb_acction(_T(" push D:\\PutPicSH /sdcard/MBTools/putpic"), 100);
+	adb_acction(_T(" push D:\\AddFirSH /sdcard/MBTools/addfir"), 100);
+	adb_acction(_T(" push D:\\DelPicSH /sdcard/MBTools/delpic"), 100);
 	msgbox.ReplaceSel(_T("\r\n初始化完成!"));
 	enableall();
 }
 
-
+/*
 void CMBToolsDlg::OnBnClickedButton11()
 {
 	//发送聊天内容
@@ -1039,7 +1027,20 @@ void CMBToolsDlg::OnBnClickedButton11()
 	UpdateData(false);
 	GetDlgItem(IDC_EDIT1)->SetFocus();
 }
-
+*/
+void CMBToolsDlg::OnBnClickedButton11()
+{
+	//发送命令
+	CString Text;
+	CString cmd;
+	GetDlgItemText(IDC_EDIT1, Text);
+	char* buf = NULL;
+	cmd = _T(" shell ") + Text;
+	adb_acction(cmd, 100);
+	msgbox.SetWindowText(_T(""));
+	UpdateData(false);
+	GetDlgItem(IDC_EDIT1)->SetFocus();
+}
 
 void CMBToolsDlg::OnCbnSelchangeCombo1()
 {
@@ -1128,7 +1129,7 @@ void CMBToolsDlg::OnTimer(UINT_PTR nIDEvent)
 		GetDlgItem(IDC_BUTTON4)->EnableWindow(FALSE);
 		msgbox.SetWindowText(_T(""));
 		msgbox.ReplaceSel(_T("正在加人:"));
-		adb_acction(_T(" shell sh /sdcard/MBTools/addfir"), 1000);
+		adb_acction(_T(" shell sh /sdcard/MBTools/addfir"), 100);
 		msgbox.ReplaceSel(_T("\r\n操作完成!"));
 		SetDlgItemText(IDC_BUTTON4, _T("停止自动添加"));
 		GetDlgItem(IDC_BUTTON4)->EnableWindow(TRUE);
@@ -1139,9 +1140,66 @@ void CMBToolsDlg::OnTimer(UINT_PTR nIDEvent)
 		AfxMessageBox(_T("定时器发图!"));
 		break;
 	}
+	case TIMERRR:
+	{
+		adb_acction(_T(" shell input swipe 240 00 240 80"), 100);
+		break;
+	}
 	default:
 		break;
 	}
 
 	CDialog::OnTimer(nIDEvent);
 }
+
+
+void CMBToolsDlg::OnBnClickedButton13()
+{
+	// TODO: 在此添加控件通知处理程序代码 320
+	//声音控制
+	CString btText;
+	GetDlgItem(IDC_BUTTON13)->GetWindowText(btText);
+	if (btText == _T("关闭声音")) {
+		SetDlgItemText(IDC_BUTTON13, _T("开启声音"));
+		adb_acction(_T(" shell am start -W com.android.settings"), 250);
+		adb_acction(_T(" shell input tap 240 780"), 200);
+		adb_acction(_T(" shell input tap 240 170"), 200);
+		adb_acction(_T(" shell input tap 240 725"), 200);
+		adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 1000);
+	}
+	else {
+		SetDlgItemText(IDC_BUTTON13, _T("关闭声音"));
+		adb_acction(_T(" shell am start -W com.android.settings"), 250);
+		adb_acction(_T(" shell input tap 240 780"), 200);
+		adb_acction(_T(" shell input tap 240 170"), 200);
+		adb_acction(_T(" shell input tap 240 660"), 200);
+		adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 1000);
+	}
+}
+
+/*
+
+void CMBToolsDlg::OnBnClickedButton13()  310
+{
+// TODO: 在此添加控件通知处理程序代码
+//声音控制
+CString btText;
+GetDlgItem(IDC_BUTTON13)->GetWindowText(btText);
+if (btText == _T("关闭声音")) {
+SetDlgItemText(IDC_BUTTON13, _T("开启声音"));
+adb_acction(_T(" shell am start -W com.android.settings"), 2000);
+adb_acction(_T(" shell input tap 240 680"), 1000);
+adb_acction(_T(" shell input tap 240 170"), 1000);
+adb_acction(_T(" shell input tap 240 280"), 1000);
+adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 1000);
+}
+else {
+SetDlgItemText(IDC_BUTTON13, _T("关闭声音"));
+adb_acction(_T(" shell am start -W com.android.settings"), 2000);
+adb_acction(_T(" shell input tap 240 680"), 1000);
+adb_acction(_T(" shell input tap 240 170"), 1000);
+adb_acction(_T(" shell input tap 240 194"), 1000);
+adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 1000);
+}
+}
+*/
