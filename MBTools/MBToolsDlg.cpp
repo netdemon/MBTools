@@ -127,7 +127,7 @@ BOOL CMBToolsDlg::OnInitDialog()
 	SetDlgItemText(IDC_BUTTON6, _T("安装支持程序"));
 	SetDlgItemText(IDC_BUTTON7, _T("初始化模拟器"));
 	SetDlgItemText(IDC_BUTTON8, _T("清除所有图片"));
-	SetDlgItemText(IDC_BUTTON9, _T("清除联系人"));
+	SetDlgItemText(IDC_BUTTON9, _T("清除通信录"));
 
 	vmnum = getVMlist();
 	vmNum.Format(_T("%d"), vmnum);
@@ -623,7 +623,6 @@ int CMBToolsDlg::getVMlist() {
 	si.wShowWindow = SW_HIDE;
 	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
 	TCHAR cmd[MAX_PATH] = _T("D:\\ADB\\adb.exe devices");
-
 	if (!CreateProcess(NULL, cmd, NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi))
 	{
 		CloseHandle(hWrite);
@@ -1175,7 +1174,6 @@ void CMBToolsDlg::OnBnClickedButton13()
 }
 
 /*
-
 void CMBToolsDlg::OnBnClickedButton13()  310
 {
 // TODO: 在此添加控件通知处理程序代码
