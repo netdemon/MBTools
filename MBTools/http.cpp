@@ -39,7 +39,7 @@ BOOL Download(const CString& strFileURLInServer,	//待下载文件的URL
 				session.Close();
 				return false;
 			}
-			char szInfoBuffer[1000];  //返回消息
+			char szInfoBuffer[1000] = {0};  //返回消息
 			DWORD dwFileSize = 0;   //文件长度
 			DWORD dwInfoBufferSize = sizeof(szInfoBuffer);
 			BOOL bResult = FALSE;

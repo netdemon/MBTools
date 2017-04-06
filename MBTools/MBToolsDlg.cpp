@@ -631,7 +631,7 @@ int CMBToolsDlg::getVMlist() {
 		return FALSE;
 	}
 	CloseHandle(hWrite);
-	char buffer[4096] = { 0 };       //用4K的空间来存储输出的内容，只要不是显示文件内容，一般情况下是够用了。  
+	char buffer[4096] = {0};       //用4K的空间来存储输出的内容，只要不是显示文件内容，一般情况下是够用了。  
 	DWORD bytesRead;
 	CString bf;
 	while (true)
@@ -662,26 +662,24 @@ int CMBToolsDlg::getVMlist() {
 	while (file_r.ReadString(strLine))
 	{
 		CString bf = strLine.Left(15);
-		//AfxMessageBox(bf);
-
+		/* 模拟器
 		if (bf.Find(_T("127")) != -1)
 		{
 			vmlist.Add(bf);
 		}
-/* hand
+		*/
 		BOOL bIsDigit = TRUE;
 		for (int i = 0; i < 14; i++)
 		{
 			if (0 == isdigit(bf.GetAt(i)))
 			{
 				bIsDigit = FALSE;
-				break;// 退出
+				break;
 			}
 		}
 		if (bIsDigit) {
 			vmlist.Add(bf);
 		}
-		*/
 	}
 	file_r.Close();
 	vmnum = vmlist.GetSize();
@@ -758,7 +756,6 @@ void CMBToolsDlg::OnBnClickedButton4()
 		KillTimer(TIMERAF);
 		SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
 	}
-
 }
 
 
@@ -975,7 +972,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 			XSleep(1000);
 			adb_acction(_T(" shell input tap 70 820"), 100); //微信界面
 			msgbox.ReplaceSel(_T("\r\n发送完成，等待下轮!"));
-			//XSleep(15000);
+			//XSleep(3000);
 		}
 	}
 	last.Close();
