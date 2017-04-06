@@ -84,6 +84,7 @@ BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
 	ON_CBN_SELCHANGE(IDC_COMBO2, &CMBToolsDlg::OnCbnSelchangeCombo2)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON13, &CMBToolsDlg::OnBnClickedButton13)
+	ON_BN_CLICKED(IDC_BUTTON14, &CMBToolsDlg::OnBnClickedButton14)
 END_MESSAGE_MAP()
 
 
@@ -1155,21 +1156,21 @@ void CMBToolsDlg::OnBnClickedButton13()
 	//声音控制
 	CString btText;
 	GetDlgItem(IDC_BUTTON13)->GetWindowText(btText);
-	if (btText == _T("关闭声音")) {
-		SetDlgItemText(IDC_BUTTON13, _T("开启声音"));
+	if (btText == _T("关闭声音 320")) {
+		SetDlgItemText(IDC_BUTTON13, _T("开启声音 320"));
 		adb_acction(_T(" shell am start -W com.android.settings"), 250);
 		adb_acction(_T(" shell input tap 240 780"), 200);
 		adb_acction(_T(" shell input tap 240 170"), 200);
 		adb_acction(_T(" shell input tap 240 725"), 200);
-		adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 1000);
+		adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 500);
 	}
 	else {
-		SetDlgItemText(IDC_BUTTON13, _T("关闭声音"));
+		SetDlgItemText(IDC_BUTTON13, _T("关闭声音 320"));
 		adb_acction(_T(" shell am start -W com.android.settings"), 250);
 		adb_acction(_T(" shell input tap 240 780"), 200);
 		adb_acction(_T(" shell input tap 240 170"), 200);
 		adb_acction(_T(" shell input tap 240 660"), 200);
-		adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 1000);
+		adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 500);
 	}
 }
 
@@ -1198,3 +1199,28 @@ adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI")
 }
 }
 */
+
+
+void CMBToolsDlg::OnBnClickedButton14()
+{
+	// TODO: 在此添加控件通知处理程序代码 310
+	CString btText;
+	GetDlgItem(IDC_BUTTON14)->GetWindowText(btText);
+	if (btText == _T("关闭声音 310")) {
+		SetDlgItemText(IDC_BUTTON14, _T("开启声音 310"));
+		adb_acction(_T(" shell am start -W com.android.settings"), 100);
+		adb_acction(_T(" shell input tap 240 680"), 100);
+		adb_acction(_T(" shell input tap 240 170"), 100);
+		adb_acction(_T(" shell input tap 240 280"), 100);
+		adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 100);
+	}
+	else {
+		SetDlgItemText(IDC_BUTTON14, _T("关闭声音 310"));
+		adb_acction(_T(" shell am start -W com.android.settings"), 100);
+		adb_acction(_T(" shell input tap 240 680"), 100);
+		adb_acction(_T(" shell input tap 240 170"), 100);
+		adb_acction(_T(" shell input tap 240 194"), 100);
+		adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 100);
+	}
+}
+
