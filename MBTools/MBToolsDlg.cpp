@@ -596,9 +596,9 @@ void CMBToolsDlg::OnBnClickedButton8()
 	GetDlgItem(IDC_BUTTON8)->EnableWindow(FALSE);
 	msgbox.SetWindowText(_T(""));
 	msgbox.ReplaceSel(_T("正在清理:"));
-	adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 1000);
-	adb_acction(_T(" shell rm \"/sdcard/vxt/*\""), 1000);
-	adb_acction(_T(" shell pm clear com.android.providers.media"), 1000);
+	adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 100);
+	adb_acction(_T(" shell rm \"/sdcard/vxt/*\""), 100);
+	adb_acction(_T(" shell pm clear com.android.providers.media"), 100);
 	msgbox.ReplaceSel(_T("\r\n清理成功!"));
 	GetDlgItem(IDC_BUTTON8)->EnableWindow(TRUE);
 }
@@ -930,7 +930,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 			msgbox.ReplaceSel(_T("\r\n正在上图:"));
 			adb_acction(_T(" push ") + idpath + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 200); //1000
 			XSleep(2000); //
-			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 1000); //2000
+			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 2000); //2000
 			//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/tencent/MicroMsg/WeiXin/"), 2000);
 			XSleep(10000); //
 			msgbox.ReplaceSel(_T("\r\n发送指令:"));
