@@ -868,7 +868,6 @@ void CMBToolsDlg::OnBnClickedButton3()
 	disableall();
 
 	//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 200);
-	adb_acction(_T(" shell ime set com.android.adbkeyboard/.AdbIME"), 100);
 
 	m_postunit.EnableWindow(FALSE);
 	msgbox.EnableWindow(FALSE);
@@ -930,9 +929,9 @@ void CMBToolsDlg::OnBnClickedButton3()
 			msgbox.ReplaceSel(_T("\r\n正在上图:"));
 			adb_acction(_T(" push ") + idpath + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 200); //1000
 			XSleep(2000); //
-			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 2000); //2000
+			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 4000); //2000
 			//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/tencent/MicroMsg/WeiXin/"), 2000);
-			XSleep(10000); //
+			XSleep(20000); //
 			msgbox.ReplaceSel(_T("\r\n发送指令:"));
 			adb_acction(_T(" shell sh /sdcard/MBTools/putpic"), 100); //
 			msgbox.ReplaceSel(_T("\r\n等待文字:"));
@@ -948,6 +947,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 				XSleep(stime);
 			}
 			msgbox.ReplaceSel(_T("\r\n发送文本!"));
+			adb_acction(_T(" shell ime set com.android.adbkeyboard/.AdbIME"), 100);
 			CString title;
 			char ansi_title[4096] = { 0 };
 			CFile mfile;
@@ -972,12 +972,13 @@ void CMBToolsDlg::OnBnClickedButton3()
 			XSleep(1000);
 			adb_acction(_T(" shell input tap 70 820"), 100); //微信界面
 			msgbox.ReplaceSel(_T("\r\n发送完成，等待下轮!"));
+			adb_acction(_T(" shell ime set com.aliyun.mobile.ime/.AImeService"), 100);
 			//XSleep(3000);
 		}
 	}
 	last.Close();
 	msgbox.ReplaceSel(_T("\r\n操作完成!"));
-	adb_acction(_T(" shell ime set com.aliyun.mobile.ime/.AImeService"), 100);
+	//adb_acction(_T(" shell ime set com.aliyun.mobile.ime/.AImeService"), 100);
 	enableall();
 	msgbox.EnableWindow(TRUE);
 	m_postunit.EnableWindow(TRUE);
