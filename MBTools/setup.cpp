@@ -41,7 +41,7 @@ void CMBToolsSet::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CMBToolsSet, CDialogEx)
 	ON_BN_CLICKED(IDOK, &CMBToolsSet::OnBnClickedOk)
-	ON_EN_CHANGE(IDC_EDIT1, &CMBToolsSet::OnEnChangeEdit1)
+//	ON_EN_CHANGE(IDC_EDIT1, &CMBToolsSet::OnEnChangeEdit1)
 END_MESSAGE_MAP()
 
 BEGIN_DISPATCH_MAP(CMBToolsSet, CDialogEx)
@@ -62,27 +62,40 @@ END_INTERFACE_MAP()
 
 // setup 消息处理程序
 
+BOOL CMBToolsSet::OnInitDialog()
+{
+	//AfxMessageBox(_T("GOOD"));
+	CString str;
+	CStdioFile file;
+	if (file.Open(KEYFILE, CFile::modeRead)) {
+		file.ReadString(str);
+		SetDlgItemText(IDC_EDIT1, str);
+	}
+	file.Close();
+	return TRUE;
+}
+
 
 void CMBToolsSet::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	CString str;
 	CStdioFile file;
+	file.Open(KEYFILE, CFile::modeCreate | CFile::modeReadWrite);
 	GetDlgItemText(IDC_EDIT1,str);
 	//写KEY文件
-	file.Open(KEYFILE, CFile::modeCreate | CFile::modeReadWrite);
 	file.WriteString(str);
 	file.Close();
 	CDialogEx::OnOK();
 }
 
 
-void CMBToolsSet::OnEnChangeEdit1()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-}
+//void CMBToolsSet::OnEnChangeEdit1()
+//{
+//	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+//	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+//	// 函数并调用 CRichEditCtrl().SetEventMask()，
+//	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+//
+//	// TODO:  在此添加控件通知处理程序代码
+//}

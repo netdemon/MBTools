@@ -20,11 +20,11 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
-
+	virtual BOOL OnInitDialog();
 	DECLARE_MESSAGE_MAP()
 	DECLARE_DISPATCH_MAP()
 	DECLARE_INTERFACE_MAP()
 public:
 	afx_msg void OnBnClickedOk();
-	afx_msg void OnEnChangeEdit1();
+//	afx_msg void OnEnChangeEdit1();
 };
