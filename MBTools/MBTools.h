@@ -16,13 +16,13 @@
 #define ADB		_T("D:\\ADB\\adb.exe")
 #define CURL	_T("D:\\curl.exe")
 #define MYPATH	_T("D:\\MBTools\\")
+#define KEYFILE	_T("D:\\KEY")
 #define TIMERAF	1
 #define TIMERPP 2
 #define TIMERRR 3
 #define AFTIME	60*60000
 #define PPTIME	40*60000
 #define RRTIME	28*60000
-
 
 
 // CMBToolsApp: 
@@ -44,3 +44,4 @@ public:
 };
 
 extern CMBToolsApp theApp;
+

@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "MBTools.h"
 #include "MBToolsDlg.h"
+#include "setup.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

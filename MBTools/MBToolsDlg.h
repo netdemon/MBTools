@@ -76,6 +76,7 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnBnClickedButton13();
 	afx_msg void OnBnClickedButton14();
+	afx_msg void OnBnClickedButton15();
 };
 
 CString GetClipBoardText(HWND hWnd);

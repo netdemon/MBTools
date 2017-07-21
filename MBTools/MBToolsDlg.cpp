@@ -8,6 +8,8 @@
 #include "afxdialogex.h"
 #include "xsleep.h"
 #include "http.h"
+#include "setup.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -85,6 +87,7 @@ BEGIN_MESSAGE_MAP(CMBToolsDlg, CDialog)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON13, &CMBToolsDlg::OnBnClickedButton13)
 	ON_BN_CLICKED(IDC_BUTTON14, &CMBToolsDlg::OnBnClickedButton14)
+	ON_BN_CLICKED(IDC_BUTTON15, &CMBToolsDlg::OnBnClickedButton15)
 END_MESSAGE_MAP()
 
 
@@ -1225,3 +1228,10 @@ void CMBToolsDlg::OnBnClickedButton14()
 	}
 }
 
+
+void CMBToolsDlg::OnBnClickedButton15()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CMBToolsSet setupdlg;
+	setupdlg.DoModal();
+}
