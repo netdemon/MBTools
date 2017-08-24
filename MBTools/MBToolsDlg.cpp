@@ -139,6 +139,10 @@ BOOL CMBToolsDlg::OnInitDialog()
 	SetDlgItemText(IDC_STATIC, vmNum);
 	m_postunit.SetCurSel(0);
 	SetTimer(TIMERRR, RRTIME, NULL);//启动刷新定时器
+	Key = getKey();
+	if (Key == _T("0")) {
+		AfxMessageBox(_T("没有密匙，请在设置里输入密匙！"));
+	}
 
 	// END在此添加额外的初始化代码
 
@@ -316,6 +320,8 @@ void CMBToolsDlg::OnBnClickedOk()
 
 	CString post = _T("-d id=");
 	post += id;
+	post += _T("&key=");
+	post += Key;
 	post += _T(" --data-urlencode t=");
 	post += ANSI_Text;
 	cmd = post + _T("  ") + HOST + POST;
@@ -689,6 +695,20 @@ int CMBToolsDlg::getVMlist() {
 	return vmnum;
 }
 
+CString CMBToolsDlg::getKey()
+{
+	CString str;
+	CStdioFile file;
+	if (file.Open(KEYFILE, CFile::modeRead)) {
+		file.ReadString(str);
+		file.Close();
+		return str;
+	}
+	else {
+		return _T("0");
+	}
+}
+
 
 //获取剪贴板文本内容  
 CString GetClipBoardText(HWND hWnd)
@@ -884,10 +904,15 @@ void CMBToolsDlg::OnBnClickedButton3()
 	CString path = _T("D:\\pic");
 	CString geturl = HOST;
 	geturl += DOWN;
-	geturl += _T("?n=");
+	geturl += _T("?key=");
+	geturl += Key;
+	geturl += _T("&n=");
 
 	CString picurl = HOST;
 	picurl += _T("/pic/");
+	picurl += Key;
+	picurl += _T("/");
+
 
 	if (!PathFileExists(path)) {
 		CreateDirectory(_T("D:\\pic"), NULL);

@@ -44,12 +44,16 @@ public:
 	afx_msg void OnBnClickedButton8();
 
 	afx_msg int getVMlist();
+	afx_msg CString getKey();
+
 
 	CEdit msgbox;
 
 	int vmnum;
 	CStringArray vmlist;
 	CString vmNum;
+	CString Key;
+
 
 	//CString Data;
 	//CString Msg;
