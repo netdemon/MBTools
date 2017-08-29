@@ -885,7 +885,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 {
 	//副机发朋友圈
 	if (vmnum == 0) {
-		AfxMessageBox(_T("严重错误"));
+		AfxMessageBox(_T("严重错误 NOVM"));
 		exit(1);
 	}
 	disableall();
@@ -895,7 +895,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 	m_postunit.EnableWindow(FALSE);
 	msgbox.EnableWindow(FALSE);
 	msgbox.SetWindowText(_T(""));
-	msgbox.ReplaceSel(_T("\r\n正在下图:"));
+	msgbox.ReplaceSel(_T("正在下图:"));
 	//int unitnum = m_postunit.GetCurSel();
 	//unitnum += 1;
 
@@ -922,7 +922,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 	CStdioFile last;
 	CString id;
 	if (!last.Open(_T("D:\\last"), CFile::modeRead)) {
-		AfxMessageBox(_T("发生了错误"));
+		AfxMessageBox(_T("发生了错误 LAST"));
 		return;
 	}
 	else {
@@ -933,11 +933,12 @@ void CMBToolsDlg::OnBnClickedButton3()
 			CreateDirectory(idpath, NULL);
 			Download(picurl + id + _T("/list"), idpath + _T("\\piclist"));
 			Download(picurl + id + _T("/title"), idpath + _T("\\title"));
-			XSleep(500);
+			//XSleep(500);
+			XSleep(1500);
 			CStdioFile file;
 			CString strLine;
 			if (!file.Open(idpath + _T("\\piclist"), CFile::modeRead)) {
-				AfxMessageBox(_T("发生了错误"));
+				AfxMessageBox(_T("发生了错误 LIST"));
 				return;
 			}
 			else {
@@ -949,7 +950,7 @@ void CMBToolsDlg::OnBnClickedButton3()
 				}
 			}
 			file.Close();
-			msgbox.ReplaceSel(_T("清理图片!"));
+			msgbox.ReplaceSel(_T("\r\n清理图片!"));
 			adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 100);
 			adb_acction(_T(" shell pm clear com.android.providers.media"), 100);
 			XSleep(3000);
@@ -957,9 +958,10 @@ void CMBToolsDlg::OnBnClickedButton3()
 			msgbox.ReplaceSel(_T("\r\n正在上图:"));
 			adb_acction(_T(" push ") + idpath + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 200); //1000
 			XSleep(2000); //
-			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 4000); //2000
+			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 10000); //2000 加2秒
+			//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 4000); //2000
 			//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/tencent/MicroMsg/WeiXin/"), 2000);
-			XSleep(20000); //
+			XSleep(30000); //
 			msgbox.ReplaceSel(_T("\r\n发送指令:"));
 			adb_acction(_T(" shell sh /sdcard/MBTools/putpic"), 100); //
 			msgbox.ReplaceSel(_T("\r\n等待文字:"));
@@ -982,31 +984,23 @@ void CMBToolsDlg::OnBnClickedButton3()
 			mfile.Open(idpath + _T("\\title"), CFile::modeRead);
 			mfile.Read(ansi_title, 4096);
 			mfile.Close();
-			//USES_CONVERSION;
-			//char* utf8_title = T2A(title.GetBuffer(0));
-			//title.ReleaseBuffer();
 			title = ansi_title;
-			//AfxMessageBox(title);
 			UnicodeToUTF8(title);
+			//AfxMessageBox(title);
 			adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg  ") + title, 100);
 			XSleep(1000);
 			msgbox.ReplaceSel(_T("\r\n点击发送!"));
 			adb_acction(_T(" shell input tap 420 64"), 200); //2000
 			XSleep(2000);
-			//msgbox.ReplaceSel(_T("\r\n清理图片!"));
-			//adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 1000);
-			//adb_acction(_T(" shell pm clear com.android.providers.media"), 1000);
 			adb_acction(_T(" shell input tap 32 64"), 100); //微信返回
 			XSleep(1000);
 			adb_acction(_T(" shell input tap 70 820"), 100); //微信界面
 			msgbox.ReplaceSel(_T("\r\n发送完成，等待下轮!"));
 			adb_acction(_T(" shell ime set com.aliyun.mobile.ime/.AImeService"), 100);
-			//XSleep(3000);
 		}
 	}
 	last.Close();
 	msgbox.ReplaceSel(_T("\r\n操作完成!"));
-	//adb_acction(_T(" shell ime set com.aliyun.mobile.ime/.AImeService"), 100);
 	enableall();
 	msgbox.EnableWindow(TRUE);
 	m_postunit.EnableWindow(TRUE);
@@ -1259,4 +1253,130 @@ void CMBToolsDlg::OnBnClickedButton15()
 	// TODO: 在此添加控件通知处理程序代码
 	CMBToolsSet setupdlg;
 	setupdlg.DoModal();
+}
+
+
+void CMBToolsDlg::AutoPost()
+{
+	//自动发朋友圈
+	if (vmnum == 0) {
+		AfxMessageBox(_T("严重错误 NOVM"));
+		exit(1);
+	}
+	disableall();
+
+	//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 200);
+
+	m_postunit.EnableWindow(FALSE);
+	msgbox.EnableWindow(FALSE);
+	msgbox.SetWindowText(_T(""));
+	msgbox.ReplaceSel(_T("正在下图:"));
+	//int unitnum = m_postunit.GetCurSel();
+	//unitnum += 1;
+
+	CString sNum;
+	GetDlgItem(IDC_COMBO2)->GetWindowText(sNum);
+	CString path = _T("D:\\pic");
+	CString geturl = HOST;
+	geturl += DOWN;
+	geturl += _T("?key=");
+	geturl += Key;
+	geturl += _T("&n=");
+
+	CString picurl = HOST;
+	picurl += _T("/pic/");
+	picurl += Key;
+	picurl += _T("/");
+
+
+	if (!PathFileExists(path)) {
+		CreateDirectory(_T("D:\\pic"), NULL);
+	}
+	Download(geturl + sNum, _T("D:\\last"));
+	XSleep(3000);
+	CStdioFile last;
+	CString id;
+	if (!last.Open(_T("D:\\last"), CFile::modeRead)) {
+		AfxMessageBox(_T("发生了错误 LAST"));
+		return;
+	}
+	else {
+		while (last.ReadString(id))
+		{
+			id.Trim();
+			CString idpath = path + _T("\\") + id;
+			CreateDirectory(idpath, NULL);
+			Download(picurl + id + _T("/list"), idpath + _T("\\piclist"));
+			Download(picurl + id + _T("/title"), idpath + _T("\\title"));
+			//XSleep(500);
+			XSleep(1500);
+			CStdioFile file;
+			CString strLine;
+			if (!file.Open(idpath + _T("\\piclist"), CFile::modeRead)) {
+				AfxMessageBox(_T("发生了错误 LIST"));
+				return;
+			}
+			else {
+				while (file.ReadString(strLine))
+				{
+					strLine.Trim();
+					//下载图片
+					Download(picurl + id + _T("/") + strLine, idpath + _T("\\") + strLine);
+				}
+			}
+			file.Close();
+			msgbox.ReplaceSel(_T("\r\n清理图片!"));
+			adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 100);
+			adb_acction(_T(" shell pm clear com.android.providers.media"), 100);
+			XSleep(3000);
+			//发送图片到模拟器
+			msgbox.ReplaceSel(_T("\r\n正在上图:"));
+			adb_acction(_T(" push ") + idpath + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 200); //1000
+			XSleep(2000); //
+			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 10000); //2000 加2秒
+																													//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 4000); //2000
+																													//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/tencent/MicroMsg/WeiXin/"), 2000);
+			XSleep(30000); //
+			msgbox.ReplaceSel(_T("\r\n发送指令:"));
+			adb_acction(_T(" shell sh /sdcard/MBTools/putpic"), 100); //
+			msgbox.ReplaceSel(_T("\r\n等待文字:"));
+#ifdef DEBUG
+			int stime = 4000 / vmnum;
+#else
+			int stime = 40000 / vmnum;  //4000
+#endif
+			CString Msg;
+			for (int i = 0; i < vmnum; i++) {
+				Msg.Format(_T(" %d"), i + 1);
+				msgbox.ReplaceSel(Msg);
+				XSleep(stime);
+			}
+			msgbox.ReplaceSel(_T("\r\n发送文本!"));
+			adb_acction(_T(" shell ime set com.android.adbkeyboard/.AdbIME"), 100);
+			CString title;
+			char ansi_title[4096] = { 0 };
+			CFile mfile;
+			mfile.Open(idpath + _T("\\title"), CFile::modeRead);
+			mfile.Read(ansi_title, 4096);
+			mfile.Close();
+			title = ansi_title;
+			//UnicodeToUTF8(title);
+			//AfxMessageBox(title);
+			adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg  ") + title, 100);
+			XSleep(1000);
+			msgbox.ReplaceSel(_T("\r\n点击发送!"));
+			adb_acction(_T(" shell input tap 420 64"), 200); //2000
+			XSleep(2000);
+			adb_acction(_T(" shell input tap 32 64"), 100); //微信返回
+			XSleep(1000);
+			adb_acction(_T(" shell input tap 70 820"), 100); //微信界面
+			msgbox.ReplaceSel(_T("\r\n发送完成，等待下轮!"));
+			adb_acction(_T(" shell ime set com.aliyun.mobile.ime/.AImeService"), 100);
+		}
+	}
+	last.Close();
+	msgbox.ReplaceSel(_T("\r\n操作完成!"));
+	enableall();
+	msgbox.EnableWindow(TRUE);
+	m_postunit.EnableWindow(TRUE);
 }

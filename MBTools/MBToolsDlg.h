@@ -46,7 +46,8 @@ public:
 	afx_msg int getVMlist();
 	afx_msg CString getKey();
 
-
+	afx_msg void AutoPost();
+	
 	CEdit msgbox;
 
 	int vmnum;
