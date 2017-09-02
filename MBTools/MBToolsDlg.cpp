@@ -979,12 +979,25 @@ void CMBToolsDlg::OnBnClickedButton3()
 			msgbox.ReplaceSel(_T("\r\n发送文本!"));
 			adb_acction(_T(" shell ime set com.android.adbkeyboard/.AdbIME"), 100);
 			CString title;
-			char ansi_title[4096] = { 0 };
+			//char ansi_title[4096] = { 0 };
 			CFile mfile;
-			mfile.Open(idpath + _T("\\title"), CFile::modeRead);
-			mfile.Read(ansi_title, 4096);
+			mfile.Open(idpath + _T("\\title"), CFile::modeRead | CFile::typeBinary);
+			BYTE head[3];
+			mfile.Read(head, 3);
+			if (!(head[0] == 0xEF && head[1] == 0xBB && head[2] == 0xBF))
+			{
+				mfile.SeekToBegin();
+			}
+			ULONGLONG FileSize = mfile.GetLength();
+			char* pContent = (char*)calloc(FileSize + 1, sizeof(char));
+			mfile.Read(pContent, FileSize);
 			mfile.Close();
-			title = ansi_title;
+			int n = MultiByteToWideChar(CP_UTF8, 0, pContent, FileSize + 1, NULL, 0);
+			wchar_t* pWideChar = (wchar_t*)calloc(n + 1, sizeof(wchar_t));
+			MultiByteToWideChar(CP_UTF8, 0, pContent, FileSize + 1, pWideChar, n);
+			title = CString(pWideChar);
+			free(pContent);
+			free(pWideChar);
 			UnicodeToUTF8(title);
 			//AfxMessageBox(title);
 			adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg  ") + title, 100);
@@ -1197,36 +1210,52 @@ void CMBToolsDlg::OnBnClickedButton13()
 	}
 }
 
-/*
-void CMBToolsDlg::OnBnClickedButton13()  310
-{
-// TODO: 在此添加控件通知处理程序代码
-//声音控制
-CString btText;
-GetDlgItem(IDC_BUTTON13)->GetWindowText(btText);
-if (btText == _T("关闭声音")) {
-SetDlgItemText(IDC_BUTTON13, _T("开启声音"));
-adb_acction(_T(" shell am start -W com.android.settings"), 2000);
-adb_acction(_T(" shell input tap 240 680"), 1000);
-adb_acction(_T(" shell input tap 240 170"), 1000);
-adb_acction(_T(" shell input tap 240 280"), 1000);
-adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 1000);
-}
-else {
-SetDlgItemText(IDC_BUTTON13, _T("关闭声音"));
-adb_acction(_T(" shell am start -W com.android.settings"), 2000);
-adb_acction(_T(" shell input tap 240 680"), 1000);
-adb_acction(_T(" shell input tap 240 170"), 1000);
-adb_acction(_T(" shell input tap 240 194"), 1000);
-adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 1000);
-}
-}
-*/
-
 
 void CMBToolsDlg::OnBnClickedButton14()
 {
 	// TODO: 在此添加控件通知处理程序代码 310
+	//CFile::typeText
+	CString path = _T("D:\\pic");
+	CString idpath = path + _T("\\");
+	CString title;
+	char ansi_title[4096] = { 0 };
+	CFile mfile;
+
+	CString filename = idpath + _T("\\title_utf8");
+	CFile fileR;
+	CString strFile = _T("");
+	fileR.Open(filename, CFile::modeRead | CFile::typeBinary);
+	BYTE head[3];
+	fileR.Read(head, 3);
+	if (!(head[0] == 0xEF && head[1] == 0xBB && head[2] == 0xBF))
+	{
+		fileR.SeekToBegin();
+	}
+	ULONGLONG FileSize = fileR.GetLength();
+	char* pContent = (char*)calloc(FileSize + 1, sizeof(char));
+	fileR.Read(pContent, FileSize);
+	fileR.Close();
+	int n = MultiByteToWideChar(CP_UTF8, 0, pContent, FileSize + 1, NULL, 0);
+	wchar_t* pWideChar = (wchar_t*)calloc(n + 1, sizeof(wchar_t));
+	MultiByteToWideChar(CP_UTF8, 0, pContent, FileSize + 1, pWideChar, n);
+	strFile = CString(pWideChar);
+	free(pContent);
+	free(pWideChar);
+
+	//return strFile;
+	//UnicodeToUTF8(strFile);
+	AfxMessageBox(strFile);
+
+	//mfile.Open(idpath + _T("\\title_ansi"), CFile::modeRead);
+	//mfile.Open(idpath + _T("\\title_un"), CFile::modeRead);
+	//mfile.Read(ansi_title,4096);
+	//mfile.Close();
+	//title = ansi_title;
+	//UnicodeToUTF8(title);
+	//ANSItoUnicode(title);
+	//AfxMessageBox(title);
+
+	/*
 	CString btText;
 	GetDlgItem(IDC_BUTTON14)->GetWindowText(btText);
 	if (btText == _T("关闭声音 310")) {
@@ -1245,6 +1274,7 @@ void CMBToolsDlg::OnBnClickedButton14()
 		adb_acction(_T(" shell input tap 240 194"), 100);
 		adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 100);
 	}
+	*/
 }
 
 
@@ -1360,8 +1390,9 @@ void CMBToolsDlg::AutoPost()
 			mfile.Read(ansi_title, 4096);
 			mfile.Close();
 			title = ansi_title;
+			UTF8ToUnicode(title);
 			//UnicodeToUTF8(title);
-			//AfxMessageBox(title);
+			AfxMessageBox(title);
 			adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg  ") + title, 100);
 			XSleep(1000);
 			msgbox.ReplaceSel(_T("\r\n点击发送!"));
@@ -1379,4 +1410,90 @@ void CMBToolsDlg::AutoPost()
 	enableall();
 	msgbox.EnableWindow(TRUE);
 	m_postunit.EnableWindow(TRUE);
+}
+
+string CMBToolsDlg::GetTitle(CString strFilePath)
+{
+	/*
+	CFile mFile;
+	if (!mFile.Open(strFilePath, CFile::modeRead | CFile::typeBinary))
+	{
+		MessageBox(_T("无法打开文件:") + strFilePath, _T("错误"), MB_ICONERROR | MB_OK);
+		PostQuitMessage(0);
+	}
+
+	BOOL m_isUnicode = FALSE;
+	BOOL m_isUTF_8Code = FALSE;
+
+	byte head[3];   //get head content  
+	string strContents;   // file contents  
+	UINT FileSize;    // file size  
+	char *buf;        // temp   
+	mFile.Read(head, 3);
+	if ((head[0] == 0xff && head[1] == 0xfe) || (head[0] == 0xfe && head[1] == 0xff))  //Test file Is Unicode ??  
+	{
+		m_isUnicode = true;
+	}
+
+	if ((head[0] == 0xef && head[1] == 0xbb && head[2] == 0xbf) || (head[0] == 0xbf && head[1] == 0xbb && head[2] == 0xef))   //Test file Is UTF-8??  
+	{
+		m_isUTF_8Code = true;
+	}
+
+	if (m_isUTF_8Code)  //read UTF-8 File  
+	{
+
+		FileSize = (UINT)mFile.GetLength();
+		buf = new char[FileSize];
+		mFile.Seek(3, CFile::begin); //0xefbbbf  
+		mFile.Read(buf, FileSize);
+		int size = MultiByteToWideChar(CP_UTF8, 0, buf, FileSize + 1, NULL, 0);
+		wchar_t* pWideChar = new wchar_t[size + 1];
+		MultiByteToWideChar(CP_UTF8, 0, buf, FileSize + 1, pWideChar, size);
+		strContents = CString(pWideChar).GetBuffer(0);
+		delete[] buf;
+		delete[] pWideChar;
+
+	}
+	else if (m_isUnicode)  //read Unicode File;  
+	{
+		int i = 1;
+		wchar_t wch;       //for unicode  
+		wchar_t wstr[300];  // for unicode  
+		memset((void*)wstr, 0, sizeof(char)*(2 * 300));
+		mFile.Seek(2, CFile::begin); //0xfffe  
+		while (mFile.Read((char *)&wch, 2)>0)
+		{
+			if (wch == 0x000D) //by line  
+			{
+				//change to ANSI  
+				int nLen = i;
+				buf = new char[2 * nLen];
+				memset((void*)buf, 0, sizeof(char)*(2 * nLen));
+				WideCharToMultiByte(CP_ACP, 0, wstr, -1, buf, 2 * nLen, NULL, NULL);
+				buf[2 * nLen - 1] = '\0';
+				strContents += buf;
+				delete[] buf;
+				i = 0;
+			}
+			else
+			{
+				wstr[i++] = wch;
+			}
+		}
+	}
+	else    //read ANSI file  
+	{
+		FileSize = (UINT)mFile.GetLength();
+		buf = new char[FileSize];
+		while (mFile.Read(buf, FileSize)>0)
+		{
+			strContents = buf;
+		}
+		delete[] buf;
+	}
+	mFile.Close();
+	return strContents;
+	*/
+	return NULL;
 }

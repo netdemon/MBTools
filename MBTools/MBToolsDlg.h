@@ -5,6 +5,8 @@
 #pragma once
 #include "afxwin.h"
 #include <assert.h>
+#include <string>
+using namespace std;
 
 
 // CMBToolsDlg ¶Ô»°¿ò
@@ -47,7 +49,8 @@ public:
 	afx_msg CString getKey();
 
 	afx_msg void AutoPost();
-	
+	afx_msg string GetTitle(CString strFilePath);
+
 	CEdit msgbox;
 
 	int vmnum;
