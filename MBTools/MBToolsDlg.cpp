@@ -125,7 +125,7 @@ BOOL CMBToolsDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	SetDlgItemText(IDC_BUTTON1, _T("打开导号文件"));
 	SetDlgItemText(IDC_BUTTON2, _T("主机发朋友圈"));
-	SetDlgItemText(IDC_BUTTON3, _T("副机发朋友圈"));
+	SetDlgItemText(IDC_BUTTON3, _T("自动发朋友圈"));
 	SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
 	SetDlgItemText(IDC_BUTTON5, _T("删除朋友圈一"));
 	SetDlgItemText(IDC_BUTTON6, _T("安装支持程序"));
@@ -640,7 +640,7 @@ int CMBToolsDlg::getVMlist() {
 		return FALSE;
 	}
 	CloseHandle(hWrite);
-	char buffer[4096] = {0};       //用4K的空间来存储输出的内容，只要不是显示文件内容，一般情况下是够用了。  
+	char buffer[4096] = { 0 };       //用4K的空间来存储输出的内容，只要不是显示文件内容，一般情况下是够用了。  
 	DWORD bytesRead;
 	CString bf;
 	while (true)
@@ -884,139 +884,29 @@ void CMBToolsDlg::OnBnClickedButton6()
 void CMBToolsDlg::OnBnClickedButton3()
 {
 	//副机发朋友圈
-	if (vmnum == 0) {
-		AfxMessageBox(_T("严重错误 NOVM"));
-		exit(1);
-	}
-	disableall();
-
-	//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 200);
-
-	m_postunit.EnableWindow(FALSE);
-	msgbox.EnableWindow(FALSE);
-	msgbox.SetWindowText(_T(""));
-	msgbox.ReplaceSel(_T("正在下图:"));
-	//int unitnum = m_postunit.GetCurSel();
-	//unitnum += 1;
-
-	CString sNum;
-	GetDlgItem(IDC_COMBO2)->GetWindowText(sNum);
-	CString path = _T("D:\\pic");
-	CString geturl = HOST;
-	geturl += DOWN;
-	geturl += _T("?key=");
-	geturl += Key;
-	geturl += _T("&n=");
-
-	CString picurl = HOST;
-	picurl += _T("/pic/");
-	picurl += Key;
-	picurl += _T("/");
-
-
-	if (!PathFileExists(path)) {
-		CreateDirectory(_T("D:\\pic"), NULL);
-	}
-	Download(geturl + sNum, _T("D:\\last"));
-	XSleep(3000);
-	CStdioFile last;
-	CString id;
-	if (!last.Open(_T("D:\\last"), CFile::modeRead)) {
-		AfxMessageBox(_T("发生了错误 LAST"));
-		return;
+	CString btText;
+	GetDlgItem(IDC_BUTTON3)->GetWindowText(btText);
+	if (btText == _T("自动发朋友圈")) {
+		SetDlgItemText(IDC_BUTTON3, _T("正在自动发图"));
+		GetDlgItem(IDC_BUTTON3)->EnableWindow(FALSE);
+		msgbox.SetWindowText(_T(""));
+		msgbox.ReplaceSel(_T("清理图片!"));
+		adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 100);
+		adb_acction(_T(" shell pm clear com.android.providers.media"), 100);
+		msgbox.ReplaceSel(_T("\r\n正在发图:"));
+		adb_acction(_T(" shell sh /sdcard/MBTools/putpic"), 100);
+		msgbox.ReplaceSel(_T("\r\n操作完成!"));
+		SetDlgItemText(IDC_BUTTON3, _T("停止自动发图"));
+		GetDlgItem(IDC_BUTTON3)->EnableWindow(TRUE);
+		//SetTimeOn;
+		SetTimer(TIMERPP, PPTIME, NULL);//启动定时器
 	}
 	else {
-		while (last.ReadString(id))
-		{
-			id.Trim();
-			CString idpath = path + _T("\\") + id;
-			CreateDirectory(idpath, NULL);
-			Download(picurl + id + _T("/list"), idpath + _T("\\piclist"));
-			Download(picurl + id + _T("/title"), idpath + _T("\\title"));
-			//XSleep(500);
-			XSleep(1500);
-			CStdioFile file;
-			CString strLine;
-			if (!file.Open(idpath + _T("\\piclist"), CFile::modeRead)) {
-				AfxMessageBox(_T("发生了错误 LIST"));
-				return;
-			}
-			else {
-				while (file.ReadString(strLine))
-				{
-					strLine.Trim();
-					//下载图片
-					Download(picurl + id + _T("/") + strLine, idpath + _T("\\") + strLine);
-				}
-			}
-			file.Close();
-			msgbox.ReplaceSel(_T("\r\n清理图片!"));
-			adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 100);
-			adb_acction(_T(" shell pm clear com.android.providers.media"), 100);
-			XSleep(3000);
-			//发送图片到模拟器
-			msgbox.ReplaceSel(_T("\r\n正在上图:"));
-			adb_acction(_T(" push ") + idpath + _T(" /sdcard/tencent/MicroMsg/WeiXin"), 200); //1000
-			XSleep(2000); //
-			adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 10000); //2000 加2秒
-			//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file://sdcard/"), 4000); //2000
-			//adb_acction(_T(" shell am broadcast -a android.intent.action.MEDIA_MOUNTED -d file:///sdcard/tencent/MicroMsg/WeiXin/"), 2000);
-			XSleep(30000); //
-			msgbox.ReplaceSel(_T("\r\n发送指令:"));
-			adb_acction(_T(" shell sh /sdcard/MBTools/putpic"), 100); //
-			msgbox.ReplaceSel(_T("\r\n等待文字:"));
-#ifdef DEBUG
-			int stime = 4000 / vmnum;
-#else
-			int stime = 40000 / vmnum;  //4000
-#endif
-			CString Msg;
-			for (int i = 0; i < vmnum; i++) {
-				Msg.Format(_T(" %d"), i + 1);
-				msgbox.ReplaceSel(Msg);
-				XSleep(stime);
-			}
-			msgbox.ReplaceSel(_T("\r\n发送文本!"));
-			adb_acction(_T(" shell ime set com.android.adbkeyboard/.AdbIME"), 100);
-			CString title;
-			//char ansi_title[4096] = { 0 };
-			CFile mfile;
-			mfile.Open(idpath + _T("\\title"), CFile::modeRead | CFile::typeBinary);
-			BYTE head[3];
-			mfile.Read(head, 3);
-			if (!(head[0] == 0xEF && head[1] == 0xBB && head[2] == 0xBF))
-			{
-				mfile.SeekToBegin();
-			}
-			ULONGLONG FileSize = mfile.GetLength();
-			char* pContent = (char*)calloc(FileSize + 1, sizeof(char));
-			mfile.Read(pContent, FileSize);
-			mfile.Close();
-			int n = MultiByteToWideChar(CP_UTF8, 0, pContent, FileSize + 1, NULL, 0);
-			wchar_t* pWideChar = (wchar_t*)calloc(n + 1, sizeof(wchar_t));
-			MultiByteToWideChar(CP_UTF8, 0, pContent, FileSize + 1, pWideChar, n);
-			title = CString(pWideChar);
-			free(pContent);
-			free(pWideChar);
-			UnicodeToUTF8(title);
-			//AfxMessageBox(title);
-			adb_acction(_T(" shell am broadcast -a ADB_INPUT_TEXT --es msg  ") + title, 100);
-			XSleep(1000);
-			msgbox.ReplaceSel(_T("\r\n点击发送!"));
-			adb_acction(_T(" shell input tap 420 64"), 200); //2000
-			XSleep(2000);
-			adb_acction(_T(" shell input tap 32 64"), 100); //微信返回
-			XSleep(1000);
-			adb_acction(_T(" shell input tap 70 820"), 100); //微信界面
-			msgbox.ReplaceSel(_T("\r\n发送完成，等待下轮!"));
-			adb_acction(_T(" shell ime set com.aliyun.mobile.ime/.AImeService"), 100);
-		}
+		//SetTimeOff；
+		KillTimer(TIMERPP);
+		SetDlgItemText(IDC_BUTTON3, _T("自动发朋友圈"));
 	}
-	last.Close();
-	msgbox.ReplaceSel(_T("\r\n操作完成!"));
-	enableall();
-	msgbox.EnableWindow(TRUE);
-	m_postunit.EnableWindow(TRUE);
+
 }
 
 void CMBToolsDlg::OnBnClickedButton7()
@@ -1031,6 +921,7 @@ void CMBToolsDlg::OnBnClickedButton7()
 	adb_acction(_T(" push D:\\PutPicSH /sdcard/MBTools/putpic"), 100);
 	adb_acction(_T(" push D:\\AddFirSH /sdcard/MBTools/addfir"), 100);
 	adb_acction(_T(" push D:\\DelPicSH /sdcard/MBTools/delpic"), 100);
+	//adb_acction(_T(" push D:\\TalkSH /sdcard/MBTools/talk"), 100);
 	msgbox.ReplaceSel(_T("\r\n初始化完成!"));
 	enableall();
 }
@@ -1170,7 +1061,18 @@ void CMBToolsDlg::OnTimer(UINT_PTR nIDEvent)
 	}
 	case TIMERPP:
 	{
-		AfxMessageBox(_T("定时器发图!"));
+		//AfxMessageBox(_T("定时器发图!"));
+		SetDlgItemText(IDC_BUTTON3, _T("正在自动发图"));
+		GetDlgItem(IDC_BUTTON3)->EnableWindow(FALSE);
+		msgbox.SetWindowText(_T(""));
+		msgbox.ReplaceSel(_T("清理图片!"));
+		adb_acction(_T(" shell rm \"/sdcard/tencent/MicroMsg/WeiXin/*\""), 100);
+		adb_acction(_T(" shell pm clear com.android.providers.media"), 100);
+		msgbox.ReplaceSel(_T("\r\n正在发图:"));
+		adb_acction(_T(" shell sh /sdcard/MBTools/putpic"), 100);
+		msgbox.ReplaceSel(_T("\r\n操作完成!"));
+		SetDlgItemText(IDC_BUTTON3, _T("停止自动发图"));
+		GetDlgItem(IDC_BUTTON3)->EnableWindow(TRUE);
 		break;
 	}
 	case TIMERRR:
@@ -1214,48 +1116,7 @@ void CMBToolsDlg::OnBnClickedButton13()
 void CMBToolsDlg::OnBnClickedButton14()
 {
 	// TODO: 在此添加控件通知处理程序代码 310
-	//CFile::typeText
-	CString path = _T("D:\\pic");
-	CString idpath = path + _T("\\");
-	CString title;
-	char ansi_title[4096] = { 0 };
-	CFile mfile;
 
-	CString filename = idpath + _T("\\title_utf8");
-	CFile fileR;
-	CString strFile = _T("");
-	fileR.Open(filename, CFile::modeRead | CFile::typeBinary);
-	BYTE head[3];
-	fileR.Read(head, 3);
-	if (!(head[0] == 0xEF && head[1] == 0xBB && head[2] == 0xBF))
-	{
-		fileR.SeekToBegin();
-	}
-	ULONGLONG FileSize = fileR.GetLength();
-	char* pContent = (char*)calloc(FileSize + 1, sizeof(char));
-	fileR.Read(pContent, FileSize);
-	fileR.Close();
-	int n = MultiByteToWideChar(CP_UTF8, 0, pContent, FileSize + 1, NULL, 0);
-	wchar_t* pWideChar = (wchar_t*)calloc(n + 1, sizeof(wchar_t));
-	MultiByteToWideChar(CP_UTF8, 0, pContent, FileSize + 1, pWideChar, n);
-	strFile = CString(pWideChar);
-	free(pContent);
-	free(pWideChar);
-
-	//return strFile;
-	//UnicodeToUTF8(strFile);
-	AfxMessageBox(strFile);
-
-	//mfile.Open(idpath + _T("\\title_ansi"), CFile::modeRead);
-	//mfile.Open(idpath + _T("\\title_un"), CFile::modeRead);
-	//mfile.Read(ansi_title,4096);
-	//mfile.Close();
-	//title = ansi_title;
-	//UnicodeToUTF8(title);
-	//ANSItoUnicode(title);
-	//AfxMessageBox(title);
-
-	/*
 	CString btText;
 	GetDlgItem(IDC_BUTTON14)->GetWindowText(btText);
 	if (btText == _T("关闭声音 310")) {
@@ -1274,7 +1135,7 @@ void CMBToolsDlg::OnBnClickedButton14()
 		adb_acction(_T(" shell input tap 240 194"), 100);
 		adb_acction(_T(" shell am start -W com.tencent.mm/com.tencent.mm.ui.LauncherUI"), 100);
 	}
-	*/
+
 }
 
 
@@ -1425,27 +1286,27 @@ string CMBToolsDlg::GetTitle(CString strFilePath)
 	BOOL m_isUnicode = FALSE;
 	BOOL m_isUTF_8Code = FALSE;
 
-	byte head[3];   //get head content  
-	string strContents;   // file contents  
-	UINT FileSize;    // file size  
-	char *buf;        // temp   
+	byte head[3];   //get head content
+	string strContents;   // file contents
+	UINT FileSize;    // file size
+	char *buf;        // temp
 	mFile.Read(head, 3);
-	if ((head[0] == 0xff && head[1] == 0xfe) || (head[0] == 0xfe && head[1] == 0xff))  //Test file Is Unicode ??  
+	if ((head[0] == 0xff && head[1] == 0xfe) || (head[0] == 0xfe && head[1] == 0xff))  //Test file Is Unicode ??
 	{
 		m_isUnicode = true;
 	}
 
-	if ((head[0] == 0xef && head[1] == 0xbb && head[2] == 0xbf) || (head[0] == 0xbf && head[1] == 0xbb && head[2] == 0xef))   //Test file Is UTF-8??  
+	if ((head[0] == 0xef && head[1] == 0xbb && head[2] == 0xbf) || (head[0] == 0xbf && head[1] == 0xbb && head[2] == 0xef))   //Test file Is UTF-8??
 	{
 		m_isUTF_8Code = true;
 	}
 
-	if (m_isUTF_8Code)  //read UTF-8 File  
+	if (m_isUTF_8Code)  //read UTF-8 File
 	{
 
 		FileSize = (UINT)mFile.GetLength();
 		buf = new char[FileSize];
-		mFile.Seek(3, CFile::begin); //0xefbbbf  
+		mFile.Seek(3, CFile::begin); //0xefbbbf
 		mFile.Read(buf, FileSize);
 		int size = MultiByteToWideChar(CP_UTF8, 0, buf, FileSize + 1, NULL, 0);
 		wchar_t* pWideChar = new wchar_t[size + 1];
@@ -1455,18 +1316,18 @@ string CMBToolsDlg::GetTitle(CString strFilePath)
 		delete[] pWideChar;
 
 	}
-	else if (m_isUnicode)  //read Unicode File;  
+	else if (m_isUnicode)  //read Unicode File;
 	{
 		int i = 1;
-		wchar_t wch;       //for unicode  
-		wchar_t wstr[300];  // for unicode  
+		wchar_t wch;       //for unicode
+		wchar_t wstr[300];  // for unicode
 		memset((void*)wstr, 0, sizeof(char)*(2 * 300));
-		mFile.Seek(2, CFile::begin); //0xfffe  
+		mFile.Seek(2, CFile::begin); //0xfffe
 		while (mFile.Read((char *)&wch, 2)>0)
 		{
-			if (wch == 0x000D) //by line  
+			if (wch == 0x000D) //by line
 			{
-				//change to ANSI  
+				//change to ANSI
 				int nLen = i;
 				buf = new char[2 * nLen];
 				memset((void*)buf, 0, sizeof(char)*(2 * nLen));
@@ -1482,7 +1343,7 @@ string CMBToolsDlg::GetTitle(CString strFilePath)
 			}
 		}
 	}
-	else    //read ANSI file  
+	else    //read ANSI file
 	{
 		FileSize = (UINT)mFile.GetLength();
 		buf = new char[FileSize];

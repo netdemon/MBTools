@@ -20,9 +20,12 @@
 #define TIMERAF	1
 #define TIMERPP 2
 #define TIMERRR 3
+#define TIMERTK 4
+
 #define AFTIME	60*60000
-#define PPTIME	40*60000
+#define PPTIME	10*60000
 #define RRTIME	28*60000
+#define TKTIME	30*60000
 
 
 // CMBToolsApp: 
