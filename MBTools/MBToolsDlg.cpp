@@ -127,7 +127,7 @@ BOOL CMBToolsDlg::OnInitDialog()
 	SetDlgItemText(IDC_BUTTON2, _T("主机发朋友圈"));
 	SetDlgItemText(IDC_BUTTON3, _T("自动发朋友圈"));
 	SetDlgItemText(IDC_BUTTON4, _T("自动添加好友"));
-	SetDlgItemText(IDC_BUTTON5, _T("删除朋友圈一"));
+	SetDlgItemText(IDC_BUTTON5, _T("自动删朋友圈"));
 	SetDlgItemText(IDC_BUTTON6, _T("安装支持程序"));
 	SetDlgItemText(IDC_BUTTON7, _T("初始化模拟器"));
 	SetDlgItemText(IDC_BUTTON8, _T("清除所有图片"));
@@ -381,6 +381,7 @@ void CMBToolsDlg::OnBnClickedCancel()
 	KillTimer(TIMERAF);
 	KillTimer(TIMERPP);
 	KillTimer(TIMERRR);
+	KillTimer(TIMERDP);
 	CDialog::OnCancel();
 }
 
@@ -863,12 +864,34 @@ char * Uto8(const wchar_t* str)
 void CMBToolsDlg::OnBnClickedButton5()
 {
 	//删除朋友圈
+	//自动加人
+	CString btText;
+	GetDlgItem(IDC_BUTTON5)->GetWindowText(btText);
+	if (btText == _T("自动删朋友圈")) {
+		SetDlgItemText(IDC_BUTTON5, _T("正在删朋友圈"));
+		GetDlgItem(IDC_BUTTON5)->EnableWindow(FALSE);
+		msgbox.SetWindowText(_T(""));
+		msgbox.ReplaceSel(_T("正在删除:"));
+		adb_acction(_T(" shell sh /sdcard/MBTools/delpic"), 100);
+		msgbox.ReplaceSel(_T("\r\n操作完成! 后台自动删图已启动"));
+		SetDlgItemText(IDC_BUTTON5, _T("停止自动删图"));
+		GetDlgItem(IDC_BUTTON5)->EnableWindow(TRUE);
+		//SetTimeOn;
+		SetTimer(TIMERDP, AFTIME, NULL);//启动定时器
+	}
+	else {
+		//SetTimeOff；
+		KillTimer(TIMERDP);
+		SetDlgItemText(IDC_BUTTON5, _T("自动删朋友圈"));
+	}
+	/*
 	GetDlgItem(IDC_BUTTON5)->EnableWindow(FALSE);
 	msgbox.SetWindowText(_T(""));
 	msgbox.ReplaceSel(_T("正在删除:"));
 	adb_acction(_T(" shell sh /sdcard/MBTools/delpic"), 100);
 	msgbox.ReplaceSel(_T("\r\n删除成功!"));
 	GetDlgItem(IDC_BUTTON5)->EnableWindow(TRUE);
+	*/
 }
 
 
@@ -1073,6 +1096,18 @@ void CMBToolsDlg::OnTimer(UINT_PTR nIDEvent)
 		msgbox.ReplaceSel(_T("\r\n操作完成!"));
 		SetDlgItemText(IDC_BUTTON3, _T("停止自动发图"));
 		GetDlgItem(IDC_BUTTON3)->EnableWindow(TRUE);
+		break;
+	}
+	case TIMERDP:
+	{
+		SetDlgItemText(IDC_BUTTON5, _T("正在删朋友圈"));
+		GetDlgItem(IDC_BUTTON5)->EnableWindow(FALSE);
+		msgbox.SetWindowText(_T(""));
+		msgbox.ReplaceSel(_T("正在删除:"));
+		adb_acction(_T(" shell sh /sdcard/MBTools/delpic"), 100);
+		msgbox.ReplaceSel(_T("\r\n操作完成!"));
+		SetDlgItemText(IDC_BUTTON5, _T("停止自动删图"));
+		GetDlgItem(IDC_BUTTON5)->EnableWindow(TRUE);
 		break;
 	}
 	case TIMERRR:
